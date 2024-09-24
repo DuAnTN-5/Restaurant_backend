@@ -3,20 +3,23 @@
 @section('content')
     <div class="wrapper wrapper-content">
         <div class="row">
+            <!-- Thêm phần hiển thị tổng số người dùng -->
             <div class="col-lg-3">
                 <div class="ibox float-e-margins">
                     <div class="ibox-title">
-                        <span class="label label-success pull-right">Monthly</span>
-                        <h5>Income</h5>
+                        <span class="label label-success pull-right">Total</span>
+                        <h5>Total Users</h5>
                     </div>
                     <div class="ibox-content">
-                        <h1 class="no-margins">40 886,200</h1>
-                        <div class="stat-percent font-bold text-success">98% <i class="fa fa-bolt"></i></div>
-                        <small>Total income</small>
+                        <h1 class="no-margins">{{ $totalUsers }}</h1> <!-- Hiển thị tổng số người dùng -->
+                        <div class="stat-percent font-bold text-success">100% <i class="fa fa-users"></i></div>
+                        <small>Total registered users</small>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-3">
+
+
+            {{-- <div class="col-lg-3">
                 <div class="ibox float-e-margins">
                     <div class="ibox-title">
                         <span class="label label-info pull-right">Annual</span>
@@ -28,8 +31,8 @@
                         <small>New orders</small>
                     </div>
                 </div>
-            </div>
-            <div class="col-lg-3">
+            </div> --}}
+            {{-- <div class="col-lg-3">
                 <div class="ibox float-e-margins">
                     <div class="ibox-title">
                         <span class="label label-primary pull-right">Today</span>
@@ -41,8 +44,8 @@
                         <small>New visits</small>
                     </div>
                 </div>
-            </div>
-            <div class="col-lg-3">
+            </div> --}}
+            {{-- <div class="col-lg-3">
                 <div class="ibox float-e-margins">
                     <div class="ibox-title">
                         <span class="label label-danger pull-right">Low value</span>
@@ -54,9 +57,9 @@
                         <small>In first month</small>
                     </div>
                 </div>
-            </div>
-        </div>
-        <div class="row">
+            </div> --}}
+        {{-- </div> --}}
+        {{-- <div class="row">
             <div class="col-lg-12">
                 <div class="ibox float-e-margins">
                     <div class="ibox-title">
@@ -109,10 +112,10 @@
 
                 </div>
             </div>
-        </div>
+        </div> --}}
 
 
-        <div class="row">
+        {{-- <div class="row">
             <div class="col-lg-4">
                 <div class="ibox float-e-margins">
                     <div class="ibox-title">
@@ -417,6 +420,6 @@
             </div>
 
 
-        </div>
-    </div>
-@endsection
+        </div> --}}
+        {{-- </div> --}}
+    @endsection

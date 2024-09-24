@@ -4,34 +4,35 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
+class CreateProductsTable extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('products', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('category_id');
-            $table->string('name');
-            $table->string('slug');
-            $table->decimal('price', 15, 2);
-            $table->string('ingredients');
-            $table->string('image_url')->nullable();
-            $table->text('description')->nullable();
-            $table->string('product_code')->unique();
-            $table->timestamps();
+        if (!Schema::hasTable('products')) {
+            Schema::create('products', function (Blueprint $table) {
+                $table->id();
+                $table->string('name');
+                $table->text('description')->nullable();
+                $table->decimal('price', 10, 2);
+                $table->unsignedBigInteger('category_id')->nullable();
+                $table->string('type', 50)->nullable()->comment('Type of product, e.g., "food" or "beverage"');
+                $table->string('image_url')->nullable();
+                $table->integer('stock_quantity')->default(0);
+                $table->decimal('discount_price', 10, 2)->nullable();
+                $table->boolean('availability')->default(true);
+                $table->integer('position')->default(0); // Thứ tự sắp xếp
+                $table->string('status', 50)->default('active'); // Tình trạng (active, inactive, out-of-stock)
+                $table->timestamps();
 
-            $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
-        });
+                // Định nghĩa khóa ngoại
+                $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
+            });
+        }
     }
+    
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
+    public function down()
     {
         Schema::dropIfExists('products');
     }
-};
+}

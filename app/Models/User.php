@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -25,8 +24,9 @@ class User extends Authenticatable
         'image',
         'phone_number',
         'date_of_birth',
-        'sex',
+        'sex',  // Bỏ comment để hỗ trợ sex nếu có trong database
         'role',
+        'status',  // Đảm bảo cột 'status' được thêm vào đây
         'province_code',
         'district_code',
         'ward_code',
@@ -53,4 +53,28 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    /**
+     * Define relation to Province model.
+     */
+    public function province()
+    {
+        return $this->belongsTo(Province::class, 'province_code', 'code');
+    }
+
+    /**
+     * Define relation to District model.
+     */
+    public function district()
+    {
+        return $this->belongsTo(District::class, 'district_code', 'code');
+    }
+
+    /**
+     * Define relation to Ward model.
+     */
+    public function ward()
+    {
+        return $this->belongsTo(Ward::class, 'ward_code', 'code');
+    }
 }

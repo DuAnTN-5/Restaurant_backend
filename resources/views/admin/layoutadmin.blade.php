@@ -25,6 +25,7 @@
 </head>
 
 <body>
+    @flasher_render
     <div id="wrapper">
         <nav class="navbar-default navbar-static-side" role="navigation">
             <div class="sidebar-collapse">
@@ -35,8 +36,9 @@
                                     src="{{ asset('backend/img/profile_small.jpg') }}" />
                             </span>
                             <a data-toggle="dropdown" class="dropdown-toggle" href="#">
-                                <span class="clear"> <span class="block m-t-xs"> <strong class="font-bold">{{ Auth::user()->name }}</strong>
-                                    </span> <span class="text-muted text-xs block">Admin HightFive  <b
+                                <span class="clear"> <span class="block m-t-xs"> <strong
+                                            class="font-bold">{{ Auth::user()->name }}</strong>
+                                    </span> <span class="text-muted text-xs block">Admin HightFive <b
                                             class="caret"></b></span> </span> </a>
                             <ul class="dropdown-menu animated fadeInRight m-t-xs">
                                 <li><a href="profile.html">Profile</a></li>
@@ -47,27 +49,71 @@
                             </ul>
                         </div>
                         <div class="logo-element">
-                            <img style="width: 70px; height: 70px;" src="{{ asset('logo/LogoPNG.png')}}" alt="">
+                            <img style="width: 70px; height: 70px;" src="{{ asset('logo/LogoPNG.png') }}"
+                                alt="">
 
                         </div>
                     </li>
-                    <li class="active">
+                    <!-- Sidebar Links -->
                     <li class="{{ Request::is('admin') ? 'active' : '' }}">
                         <a href="{{ url('admin') }}">
-                            <i class="fa fa-diamond"></i>
+                            <i class="fa fa-home"></i>
                             <span class="nav-label">Trang Chủ</span>
                         </a>
                     </li>
                     <li class="{{ Request::is('admin/users*') ? 'active' : '' }}">
-                        <a href="{{ route('users.index') }}"><i class="fa fa-users"></i> <span class="nav-label">Quản
-                                Lý Người Dùng</span> <span class="fa arrow"></span></a>
+                        <a href="{{ route('users.index') }}">
+                            <i class="fa fa-users"></i>
+                            <span class="nav-label">Quản Lý Người Dùng</span>
+                            <span class="fa arrow"></span>
+                        </a>
                         <ul class="nav nav-second-level">
-                            <li class="{{ Request::is('admin/users') ? 'active' : '' }}"><a
-                                    href="{{ route('users.index') }}">Danh Sách Người Dùng</a></li>
-                            <li class="{{ Request::is('admin/users/create*') ? 'active' : '' }}"><a
-                                    href="{{ route('users.create') }}">Thêm Người Dùng</a></li>
+                            <li class="{{ Request::is('admin/users') ? 'active' : '' }}">
+                                <a href="{{ route('users.index') }}">
+                                    <i class="fa fa-list"></i> Danh Sách Người Dùng
+                                </a>
+                            </li>
+                            <li class="{{ Request::is('admin/users/create*') ? 'active' : '' }}">
+                                <a href="{{ route('users.create') }}">
+                                    <i class="fa fa-user-plus"></i> Thêm Người Dùng
+                                </a>
+                            </li>
                         </ul>
                     </li>
+
+                    <!-- Quản Lý Tin Tức -->
+                    <li class="{{ Request::is('admin/posts*') || Request::is('admin/PostCategories') ? 'active' : '' }}">
+                        <a href="#">
+                            <i class="fa fa-newspaper-o"></i> <span class="nav-label">Quản Lý Bài Viết</span>
+                            <span class="fa arrow"></span>
+                        </a>
+                        <ul class="nav nav-second-level">
+                            <li class="{{ Request::is('admin/PostCategories/index') ? 'active' : '' }}">
+                                <a href="{{ route('PostCategories.index') }}"><i class="fa fa-list"></i> Loại Bài Viết</a>
+                            </li>
+                            <li class="{{ Request::is('admin/posts') ? 'active' : '' }}">
+                                <a href="{{ route('posts.index') }}"><i class="fa fa-list"></i> Danh Sách Bài Viết</a>
+                            </li>
+                            <li class="{{ Request::is('admin/posts/create') ? 'active' : '' }}">
+                                <a href="{{ route('posts.create') }}"><i class="fa fa-plus-circle"></i> Thêm Bài Viết</a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <!-- Quản Lý Sản Phẩm -->
+                    <li class="{{ Request::is('admin/products*') || Request::is('admin/ProductCategories') ? 'active' : '' }}">
+                        <a href="#"><i class="fa fa-cutlery"></i> <span class="nav-label">Quản Lý Sản Phẩm</span> <span class="fa arrow"></span></a>
+                        <ul class="nav nav-second-level">
+                            <li class="{{ Request::is('admin/ProductCategories') ? 'active' : '' }}">
+                                <a href="{{ route('product-categories.index') }}"><i class="fa fa-list"></i> Loại Sản Phẩm</a>
+                            </li>
+                            <li class="{{ Request::is('admin/products') ? 'active' : '' }}">
+                                <a href="{{ route('products.index') }}"><i class="fa fa-list"></i> Danh Sách Sản Phẩm</a>
+                            </li>
+                            <li class="{{ Request::is('admin/products/create') ? 'active' : '' }}">
+                                <a href="{{ route('products.create') }}"><i class="fa fa-plus-circle"></i> Thêm Sản Phẩm</a>
+                            </li>
+                        </ul>
                     </li>
 
                 </ul>
@@ -91,7 +137,7 @@
                     <ul class="nav navbar-top-links navbar-right">
                         <li>
                             <span class="m-r-sm text-muted welcome-message">Welcome to HightFive Restaurant+ Admin
-                                Theme.</span>
+                                .</span>
                         </li>
                         <li class="dropdown">
                             <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">

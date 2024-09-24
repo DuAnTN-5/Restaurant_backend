@@ -7,10 +7,24 @@ use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
 {
-    protected $fillable = ['name', 'category_id', 'slug', 'price', 'ingredients', 'image_url', 'description', 'product_code'];
+    use HasFactory;
 
+    // Khai báo các trường có thể được ghi vào CSDL
+    protected $fillable = [
+        'name', 
+        'description', 
+        'price', 
+        'category_id', 
+        'type', 
+        'image_url', 
+        'stock_quantity', 
+        'discount_price', 
+        'availability'
+    ];
+
+    // Thiết lập quan hệ với bảng product_categories
     public function category()
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsTo(ProductCategory::class, 'category_id');
     }
 }

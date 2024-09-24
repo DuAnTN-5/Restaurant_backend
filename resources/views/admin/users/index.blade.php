@@ -40,8 +40,25 @@
                             </a>
                         </div>
                     </div>
+                    
                     <div class="ibox-content">
                         <div class="table-responsive">
+                            <!-- Search form -->
+                            <div class="row">
+                                <div class="col-lg-3 col-lg-offset-9 text-right">
+                                    <form method="GET" action="{{ route('users.index') }}">
+                                        <div class="input-group">
+                                            <input type="text" name="search" class="form-control" placeholder="Tìm kiếm người dùng..."
+                                                value="{{ request()->input('search') }}">
+                                            <span class="input-group-btn">
+                                                <button class="btn btn-primary" type="submit">Tìm kiếm</button>
+                                            </span>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            
+                            <!-- Table -->
                             <table class="table table-striped table-bordered table-hover dataTables-users">
                                 <thead>
                                     <tr>
@@ -50,8 +67,8 @@
                                         <th>Email</th>
                                         <th>Ảnh</th>
                                         <th>Điện Thoại</th>
-                                        <th>Ngày Sinh</th>
-                                        <th>Giới Tính</th>
+                                        {{-- <th>Ngày Sinh</th> --}}
+                                        <th>Tình trạng</th>
                                         <th>Thao Tác</th>
                                     </tr>
                                 </thead>
@@ -65,19 +82,20 @@
                                                 @if ($user->image)
                                                     <img src="{{ asset($user->image) }}" alt="Image" width="50">
                                                 @else
-                                                    <img src="{{ asset('default-avatar.png') }}" alt="Default Image"
-                                                        width="50">
+                                                    <img src="{{ asset('default-avatar.png') }}" alt="Default Image" width="50">
                                                 @endif
                                             </td>
-                                            <td>{{ $user->phone }}</td> <!-- Ensure data is not null -->
-                                            <td>{{ $user->date_of_birth }}</td> <!-- Ensure data is not null -->
-                                            <td>{{ $user->sex }}</td> <!-- Ensure data is not null -->
+                                            <td>{{ $user->phone }}</td>
+                                            {{-- <td>{{ $user->date_of_birth }}</td> --}}
+                                            <td>
+                                                <input type="checkbox" class="js-switch" data-id="{{ $user->id }}"
+                                                    {{ $user->status ? 'checked' : '' }} />
+                                            </td>
                                             <td>
                                                 <a href="{{ route('users.edit', $user->id) }}" class="btn btn-success">
                                                     <i class="fa fa-edit"></i>
                                                 </a>
-                                                <form method="POST" action="{{ route('users.destroy', $user->id) }}"
-                                                    style="display: inline;">
+                                                <form method="POST" action="{{ route('users.destroy', $user->id) }}" style="display: inline;">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="btn btn-danger"
@@ -89,19 +107,12 @@
                                         </tr>
                                     @endforeach
                                 </tbody>
-                                <tfoot>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Tên</th>
-                                        <th>Email</th>
-                                        <th>Ảnh</th>
-                                        <th>Điện Thoại</th>
-                                        <th>Ngày Sinh</th>
-                                        <th>Giới Tính</th>
-                                        <th>Thao Tác</th>
-                                    </tr>
-                                </tfoot>
                             </table>
+                            
+                            <!-- Phần hiển thị phân trang -->
+                            <div class="text-left">
+                                {{ $users->appends(request()->input())->links('pagination::bootstrap-4') }}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -109,53 +120,62 @@
         </div>
     </div>
 @endsection
-@push('styles')
-    <link href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css" rel="stylesheet">
-    <link href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css" rel="stylesheet">
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.2.2/js/dataTables.buttons.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.html5.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.print.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+@push('styles')
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/switchery/0.8.2/switchery.min.css" rel="stylesheet">
+    <style>
+        .table-responsive {
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        table {
+            table-layout: fixed;
+            width: 100%;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
 @endpush
+
 @push('scripts')
-    @flasher_render
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/switchery/0.8.2/switchery.min.js"></script>
     <script>
         $(document).ready(function() {
-            $('.dataTables-users').DataTable({
-                pageLength: 10,
-                responsive: true,
-                dom: '<"html5buttons"B>lTfgitp',
-                buttons: [{
-                        extend: 'copy'
+            // Khởi tạo Switchery cho các checkbox có class js-switch
+            var elems = Array.prototype.slice.call(document.querySelectorAll('.js-switch'));
+            elems.forEach(function(html) {
+                var switchery = new Switchery(html, {
+                    color: '#1AB394',
+                    size: 'small'
+                });
+            });
+
+            // Xử lý sự kiện khi switch (tình trạng) thay đổi
+            $('.js-switch').change(function() {
+                var userId = $(this).data('id');
+                var status = $(this).is(':checked') ? 1 : 0;
+
+                // AJAX để cập nhật trạng thái người dùng
+                $.ajax({
+                    url: '{{ route("users.updateStatus") }}',
+                    type: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: userId,
+                        status: status
                     },
-                    {
-                        extend: 'csv'
-                    },
-                    {
-                        extend: 'excel',
-                        title: 'DanhSachNguoiDung'
-                    },
-                    {
-                        extend: 'pdf',
-                        title: 'DanhSachNguoiDung'
-                    },
-                    {
-                        extend: 'print',
-                        title: 'DanhSachNguoiDung',
-                        customize: function(win) {
-                            $(win.document.body).addClass('white-bg');
-                            $(win.document.body).css('font-size', '10px');
-                            $(win.document.body).find('table')
-                                .addClass('compact')
-                                .css('font-size', 'inherit');
+                    success: function(response) {
+                        if (response.success) {
+                            alert(response.message);
+                        } else {
+                            alert('Cập nhật thất bại.');
                         }
                     }
-                ]
+                });
             });
         });
     </script>

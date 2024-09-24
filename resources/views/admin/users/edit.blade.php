@@ -119,7 +119,7 @@
                             <div class="col-lg-6">
                                 <div class="form-group">
                                     <label for="name">Họ Tên <span class="text-danger">(*)</span></label>
-                                    <input type="text" name="name" id="name" class="form-control" value="{{ $user->name }}" required>
+                                    <input type="text" name="name" id="name" class="form-control" value="{{ $user->name }}" readonly required>
                                 </div>
                             </div>
                         </div>
@@ -128,13 +128,13 @@
                             <div class="col-lg-6">
                                 <div class="form-group">
                                     <label for="password">Mật Khẩu</label>
-                                    <input type="password" name="password" id="password" class="form-control" placeholder="Nhập mật khẩu mới nếu muốn thay đổi">
+                                    <input readonly type="password" name="password" id="password" class="form-control" placeholder="*******">
                                 </div>
                             </div>
                             <div class="col-lg-6">
                                 <div class="form-group">
                                     <label for="password_confirmation">Xác Nhận Mật Khẩu</label>
-                                    <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" placeholder="Xác nhận mật khẩu mới nếu muốn thay đổi">
+                                    <input readonly type="password" name="password_confirmation" id="password_confirmation" class="form-control" placeholder="********">
                                 </div>
                             </div>
                         </div>

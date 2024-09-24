@@ -1,12 +1,11 @@
 <?php
-
 namespace App\Http\Controllers\Backend;
 
+use Illuminate\Support\Facades\DB;
 use App\Models\Province;
 use App\Models\District;
 use App\Models\Ward;
 use App\Models\User;
-use App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -19,14 +18,63 @@ class UserController extends Controller
     // Hiển thị danh sách người dùng
     public function index()
     {
-        $users = User::all();
+        $users = User::paginate(10);  // Lấy danh sách người dùng với phân trang
         return view('admin.users.index', compact('users'));
+    }
+
+    // Cập nhật trạng thái người dùng qua AJAX
+    public function updateStatus(Request $request)
+    {
+        // Xác thực yêu cầu
+        $validator = Validator::make($request->all(), [
+            'id' => 'required|exists:users,id',
+            'status' => 'required|boolean',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'message' => $validator->errors()->first()]);
+        }
+
+        // Cập nhật trạng thái người dùng
+        $user = User::find($request->id);
+        $user->status = $request->status;
+        $user->save();
+
+        return response()->json(['success' => true, 'message' => 'Trạng thái người dùng đã được cập nhật!']);
+    }
+
+    // Lấy danh sách quận/huyện dựa trên tỉnh/thành phố
+    public function getDistricts(Request $request)
+    {
+        $provinceCode = $request->input('location_id');
+        $districts = District::where('province_code', $provinceCode)->get();
+
+        $html = '<option value="">[Chọn Quận/Huyện]</option>';
+        foreach ($districts as $district) {
+            $html .= '<option value="'.$district->code.'">'.$district->name.'</option>';
+        }
+
+        return response()->json(['success' => true, 'html' => $html]);
+    }
+
+    // Lấy danh sách phường/xã dựa trên quận/huyện
+    public function getWards(Request $request)
+    {
+        $districtCode = $request->input('location_id');
+        $wards = Ward::where('district_code', $districtCode)->get();
+
+        $html = '<option value="">[Chọn Phường/Xã]</option>';
+        foreach ($wards as $ward) {
+            $html .= '<option value="'.$ward->code.'">'.$ward->name.'</option>';
+        }
+
+        return response()->json(['success' => true, 'html' => $html]);
     }
 
     // Hiển thị form tạo người dùng mới
     public function create()
     {
-        $provinces = Province::all(); // Lấy danh sách tỉnh/thành phố
+        $provinces = Province::all();
         $config = [
             'js' => [
                 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js',
@@ -42,7 +90,7 @@ class UserController extends Controller
     // Lưu người dùng mới
     public function store(Request $request, FlasherInterface $flasher)
     {
-        // Xác thực dữ liệu đầu vào
+        // Xác thực dữ liệu
         $validator = Validator::make($request->all(), [
             'email' => 'required|email|unique:users,email',
             'name' => 'required',
@@ -58,7 +106,7 @@ class UserController extends Controller
             return redirect()->back()->withInput();
         }
 
-        // Xử lý tải lên ảnh (nếu có)
+        // Xử lý tải ảnh (nếu có)
         $imagePath = null;
         if ($request->hasFile('image')) {
             $fileName = time() . '.' . $request->image->extension();
@@ -74,11 +122,12 @@ class UserController extends Controller
             'password' => Hash::make($request->password),
             'date_of_birth' => $request->date_of_birth,
             'sex' => $request->sex,
-            'phone' => $request->phone,
+            'phone_number' => $request->phone_number,
             'province_id' => $request->province_id,
             'district_id' => $request->district_id,
             'ward_id' => $request->ward_id,
             'address' => $request->address,
+            'status' => 1,  // Mặc định là active
         ]);
 
         $flasher->addSuccess('Người dùng đã được thêm thành công');
@@ -90,8 +139,6 @@ class UserController extends Controller
     {
         $user = User::findOrFail($id);
         $provinces = Province::all();
-
-        // dd($provinces);
 
         $config = [
             'js' => [
@@ -108,11 +155,11 @@ class UserController extends Controller
     // Cập nhật thông tin người dùng
     public function update(Request $request, $id, FlasherInterface $flasher)
     {
-        // Xác thực dữ liệu đầu vào
+        // Xác thực dữ liệu
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $id,
-            'phone' => 'nullable|string|max:15',
+            'phone_number' => 'nullable|string|max:15',
             'date_of_birth' => 'nullable|date',
             'sex' => 'required|in:Nam,Nữ',
             'password' => 'nullable|string|min:8|confirmed',
@@ -125,11 +172,11 @@ class UserController extends Controller
             return redirect()->back()->withInput();
         }
 
-        // Cập nhật người dùng
+        // Cập nhật thông tin người dùng
         $user = User::findOrFail($id);
         $user->name = $request->name;
         $user->email = $request->email;
-        $user->phone = $request->phone;
+        $user->phone_number = $request->phone_number;
         $user->date_of_birth = $request->date_of_birth;
         $user->sex = $request->sex;
         $user->province_id = $request->province_id;
@@ -137,7 +184,7 @@ class UserController extends Controller
         $user->ward_id = $request->ward_id;
         $user->address = $request->address;
 
-        // Xử lý tải lên ảnh (nếu có)
+        // Cập nhật ảnh đại diện (nếu có)
         if ($request->hasFile('image')) {
             if ($user->image && file_exists(public_path($user->image))) {
                 unlink(public_path($user->image));
@@ -227,6 +274,4 @@ class UserController extends Controller
         $flasher->addError('Không thể đặt lại mật khẩu.');
         return back()->withErrors(['email' => [__($status)]]);
     }
-
-    
 }
