@@ -17,7 +17,7 @@
             </ol>
         </div>
         <div class="col-lg-2 text-right">
-            <a href="{{ route('post-categories.index') }}" class="btn btn-primary" style="margin-top: 20px;">Danh Sách</a>
+            <a href="{{ route('PostCategories.index') }}" class="btn btn-primary" style="margin-top: 20px;">Danh Sách</a>
         </div>
     </div>
 
@@ -39,7 +39,7 @@
                         <h5>Chỉnh Sửa Loại Bài Viết</h5>
                     </div>
                     <div class="ibox-content">
-                        <form action="{{ route('post-categories.update', $category->id) }}" method="POST">
+                        <form action="{{ route('PostCategories.update', $category->id) }}" method="POST">
                             @csrf
                             @method('PUT')
 
@@ -64,7 +64,7 @@
                             </div>
 
                             <button type="submit" class="btn btn-primary">Cập Nhật Loại Bài Viết</button>
-                            <a href="{{ route('post-categories.index') }}" class="btn btn-secondary">Hủy</a>
+                            <a href="{{ route('PostCategories.index') }}" class="btn btn-secondary">Hủy</a>
                         </form>
                     </div>
                 </div>

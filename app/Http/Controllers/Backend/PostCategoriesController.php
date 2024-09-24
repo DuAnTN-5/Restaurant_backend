@@ -38,7 +38,7 @@ class PostCategoriesController extends Controller
         ]);
 
         $flasher->addSuccess('Danh mục bài viết đã được thêm thành công!');
-        return redirect()->route('post-categories.index');
+        return redirect()->route('PostCategories.index');
     }
 
     // Hiển thị form chỉnh sửa danh mục
@@ -66,7 +66,7 @@ class PostCategoriesController extends Controller
         ]);
 
         $flasher->addSuccess('Danh mục bài viết đã được cập nhật!');
-        return redirect()->route('post-categories.index');
+        return redirect()->route('PostCategories.index');
     }
 
     // Xóa danh mục bài viết
@@ -76,6 +76,6 @@ class PostCategoriesController extends Controller
         $category->delete();
 
         $flasher->addSuccess('Danh mục bài viết đã được xóa!');
-        return redirect()->route('post-categories.index');
+        return redirect()->route('PostCategories.index');
     }
 }

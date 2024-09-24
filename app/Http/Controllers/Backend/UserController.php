@@ -1,10 +1,6 @@
 <?php
 namespace App\Http\Controllers\Backend;
 
-use Illuminate\Support\Facades\DB;
-use App\Models\Province;
-use App\Models\District;
-use App\Models\Ward;
 use App\Models\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -43,48 +39,18 @@ class UserController extends Controller
         return response()->json(['success' => true, 'message' => 'Trạng thái người dùng đã được cập nhật!']);
     }
 
-    // Lấy danh sách quận/huyện dựa trên tỉnh/thành phố
-    public function getDistricts(Request $request)
-    {
-        $provinceCode = $request->input('location_id');
-        $districts = District::where('province_code', $provinceCode)->get();
-
-        $html = '<option value="">[Chọn Quận/Huyện]</option>';
-        foreach ($districts as $district) {
-            $html .= '<option value="'.$district->code.'">'.$district->name.'</option>';
-        }
-
-        return response()->json(['success' => true, 'html' => $html]);
-    }
-
-    // Lấy danh sách phường/xã dựa trên quận/huyện
-    public function getWards(Request $request)
-    {
-        $districtCode = $request->input('location_id');
-        $wards = Ward::where('district_code', $districtCode)->get();
-
-        $html = '<option value="">[Chọn Phường/Xã]</option>';
-        foreach ($wards as $ward) {
-            $html .= '<option value="'.$ward->code.'">'.$ward->name.'</option>';
-        }
-
-        return response()->json(['success' => true, 'html' => $html]);
-    }
-
     // Hiển thị form tạo người dùng mới
     public function create()
     {
-        $provinces = Province::all();
         $config = [
             'js' => [
                 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js',
-                'backend/library/location.js',  // JavaScript xử lý location
             ],
             'css' => [
                 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css',
             ]
         ];
-        return view('admin.users.create', compact('provinces', 'config'));
+        return view('admin.users.create', compact('config'));
     }
 
     // Lưu người dùng mới
@@ -123,9 +89,6 @@ class UserController extends Controller
             'date_of_birth' => $request->date_of_birth,
             'sex' => $request->sex,
             'phone_number' => $request->phone_number,
-            'province_id' => $request->province_id,
-            'district_id' => $request->district_id,
-            'ward_id' => $request->ward_id,
             'address' => $request->address,
             'status' => 1,  // Mặc định là active
         ]);
@@ -138,18 +101,16 @@ class UserController extends Controller
     public function edit($id)
     {
         $user = User::findOrFail($id);
-        $provinces = Province::all();
 
         $config = [
             'js' => [
                 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js',
-                'backend/library/location.js',  // JavaScript xử lý location
             ],
             'css' => [
                 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css',
             ]
         ];
-        return view('admin.users.edit', compact('user', 'provinces', 'config'));
+        return view('admin.users.edit', compact('user', 'config'));
     }
 
     // Cập nhật thông tin người dùng
@@ -179,9 +140,6 @@ class UserController extends Controller
         $user->phone_number = $request->phone_number;
         $user->date_of_birth = $request->date_of_birth;
         $user->sex = $request->sex;
-        $user->province_id = $request->province_id;
-        $user->district_id = $request->district_id;
-        $user->ward_id = $request->ward_id;
         $user->address = $request->address;
 
         // Cập nhật ảnh đại diện (nếu có)

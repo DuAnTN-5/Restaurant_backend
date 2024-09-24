@@ -19,9 +19,10 @@ class ProductCategory extends Model
         'slug',
         'position',
         'status',
-        'created_at',
-        'updated_at'
     ];
+
+    // Không cần khai báo 'created_at' và 'updated_at' trong $fillable
+    // Vì Laravel sẽ tự động quản lý chúng nếu bạn có các cột tương ứng trong bảng
 
     // Quan hệ với model Product (nhiều sản phẩm thuộc một danh mục)
     public function products()

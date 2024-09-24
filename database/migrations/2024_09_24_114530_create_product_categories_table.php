@@ -6,15 +6,10 @@ use Illuminate\Support\Facades\Schema;
 
 class CreateProductCategoriesTable extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up()
+    public function up(): void
     {
         Schema::create('product_categories', function (Blueprint $table) {
-            $table->id();
+            $table->id(); // Sử dụng phương thức id() để tạo cột `id` là unsigned big integer
             $table->string('name');
             $table->text('description')->nullable();
             $table->string('slug')->unique();
@@ -24,12 +19,7 @@ class CreateProductCategoriesTable extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('product_categories');
     }

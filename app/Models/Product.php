@@ -19,7 +19,9 @@ class Product extends Model
         'image_url', 
         'stock_quantity', 
         'discount_price', 
-        'availability'
+        'availability',
+        'position', // Nếu bạn có trường này trong bảng
+        'status',   // Nếu bạn có trường này trong bảng
     ];
 
     // Thiết lập quan hệ với bảng product_categories

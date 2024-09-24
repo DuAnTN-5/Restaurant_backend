@@ -2,14 +2,14 @@
 
 @push('styles')
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    {{-- <style>
+    <style>
         .form-group {
-            margin-bottom: 15px; /* Adjust spacing */
+            margin-bottom: 15px;
         }
 
         .form-group label {
             font-weight: bold;
-            font-size: 13px; /* Adjust font size */
+            font-size: 13px;
             margin-bottom: 5px;
             display: block;
         }
@@ -17,22 +17,22 @@
         .form-control {
             border-radius: 4px;
             border: 1px solid #ccc;
-            padding: 6px; /* Adjust padding */
-            height: 34px; /* Adjust height */
-            font-size: 13px; /* Adjust font size */
-            max-width: 100%; /* Ensure it doesn't exceed width */
+            padding: 6px;
+            height: 34px;
+            font-size: 13px;
+            max-width: 100%;
         }
 
         .ibox-title {
             background-color: #f3f3f4;
             border-bottom: 1px solid #e7eaec;
             color: #676a6c;
-            padding: 10px; /* Adjust padding */
+            padding: 10px;
             margin-bottom: 10px;
         }
 
         .ibox-content {
-            padding: 15px; /* Adjust padding */
+            padding: 15px;
             background-color: #ffffff;
             border: 1px solid #e7eaec;
             margin-bottom: 20px;
@@ -46,15 +46,15 @@
         }
 
         .panel-description {
-            font-size: 14px; /* Font size smaller than title */
-            color: #666; /* Lighter font color */
+            font-size: 14px;
+            color: #666;
         }
 
         .col-lg-6, .col-lg-12 {
             padding-left: 15px;
             padding-right: 15px;
         }
-    </style> --}}
+    </style>
 @endpush
 
 @push('scripts')
@@ -73,7 +73,6 @@
         var ward_id = "{{ old('ward_id', $user->ward_id ?? '') }}";
     </script>
 @endpush
-
 
 @section('content')
 <div class="row wrapper border-bottom white-bg page-heading">
@@ -108,6 +107,7 @@
                     <form method="POST" action="{{ route('users.update', $user->id) }}" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
+
                         <!-- Email and Name Row -->
                         <div class="row">
                             <div class="col-lg-6">
@@ -119,25 +119,11 @@
                             <div class="col-lg-6">
                                 <div class="form-group">
                                     <label for="name">Họ Tên <span class="text-danger">(*)</span></label>
-                                    <input type="text" name="name" id="name" class="form-control" value="{{ $user->name }}" readonly required>
+                                    <input type="text" name="name" id="name" class="form-control" value="{{ $user->name }}" required>
                                 </div>
                             </div>
                         </div>
-                        <!-- Password Row -->
-                        <div class="row">
-                            <div class="col-lg-6">
-                                <div class="form-group">
-                                    <label for="password">Mật Khẩu</label>
-                                    <input readonly type="password" name="password" id="password" class="form-control" placeholder="*******">
-                                </div>
-                            </div>
-                            <div class="col-lg-6">
-                                <div class="form-group">
-                                    <label for="password_confirmation">Xác Nhận Mật Khẩu</label>
-                                    <input readonly type="password" name="password_confirmation" id="password_confirmation" class="form-control" placeholder="********">
-                                </div>
-                            </div>
-                        </div>
+
                         <!-- Date of Birth and Gender Row -->
                         <div class="row">
                             <div class="col-lg-6">
@@ -156,6 +142,7 @@
                                 </div>
                             </div>
                         </div>
+
                         <!-- Avatar Upload Row -->
                         <div class="row">
                             <div class="col-lg-12">
@@ -179,7 +166,7 @@
             <div class="panel-head">
                 <div class="panel-title"><h3>Thông Tin Liên Hệ</h3></div>
                 <div class="panel-description">
-                    Chỉnh sửa thông tin liên hệ của người sử dụng
+                    <p>Nhập thông tin liên hệ của người sử dụng</p>
                 </div>
             </div>
         </div>
@@ -214,7 +201,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Ward and Address Row -->
                     <div class="row">
                         <div class="col-lg-6">
@@ -228,12 +215,13 @@
                         </div>
                         <div class="col-lg-6">
                             <div class="form-group">
+                                
                                 <label for="address">Địa chỉ</label>
                                 <input type="text" name="address" id="address" class="form-control" value="{{ old('address', $user->address ?? '') }}">
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Phone Row -->
                     <div class="row">
                         <div class="col-lg-6">
@@ -243,6 +231,31 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Social Media Information -->
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label for="facebook_id">Facebook ID</label>
+                                <input type="text" name="facebook_id" id="facebook_id" class="form-control" value="{{ old('facebook_id', $user->facebook_id ?? '') }}">
+                                <!-- Nếu có Facebook ID, hiển thị liên kết -->
+                                @if($user->facebook_id)
+                                    <a href="https://facebook.com/{{ $user->facebook_id }}" target="_blank">Xem tài khoản Facebook</a>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label for="google_id">Google ID</label>
+                                <input type="text" name="google_id" id="google_id" class="form-control" value="{{ old('google_id', $user->google_id ?? '') }}">
+                                <!-- Nếu có Google ID, hiển thị ID mà không cần liên kết -->
+                                @if($user->google_id)
+                                    <p>ID Google: {{ $user->google_id }}</p>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Action Buttons -->
                     <div class="form-group text-right">
                         <button type="submit" class="btn btn-primary">Cập Nhật</button>

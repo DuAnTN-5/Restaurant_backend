@@ -17,7 +17,7 @@
             </ol>
         </div>
         <div class="col-lg-2 text-right">
-            <a href="{{ route('post-categories.index') }}" class="btn btn-primary" style="margin-top: 20px;">Danh Sách</a>
+            <a href="{{ route('PostCategories.index') }}" class="btn btn-primary" style="margin-top: 20px;">Danh Sách</a>
         </div>
     </div>
 
@@ -39,7 +39,7 @@
                         <h5>Thêm Loại Bài Viết</h5>
                     </div>
                     <div class="ibox-content">
-                        <form action="{{ route('post-categories.store') }}" method="POST">
+                        <form action="{{ route('PostCategories.store') }}" method="POST">
                             @csrf
                             <div class="form-group">
                                 <label for="name">Tên Loại</label>
@@ -58,7 +58,7 @@
                                 <input type="number" name="position" class="form-control" id="position" value="{{ old('position') }}" required>
                             </div>
                             <button type="submit" class="btn btn-primary">Lưu Loại Bài Viết</button>
-                            <a href="{{ route('post-categories.index') }}" class="btn btn-secondary">Hủy</a>
+                            <a href="{{ route('PostCategories.index') }}" class="btn btn-secondary">Hủy</a>
                         </form>
                     </div>
                 </div>

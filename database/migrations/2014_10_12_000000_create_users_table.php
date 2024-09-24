@@ -8,37 +8,41 @@ return new class extends Migration {
      * Run the migrations.
      */
     public function up(): void
-{
-    if (!Schema::hasTable('users')) {
-        Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->string('image')->nullable();
-            $table->string('phone_number')->nullable();
-            $table->date('date_of_birth')->nullable();
-            $table->string('sex', 10)->nullable();
-            $table->string('role', 50)->nullable();
-            $table->string('status')->nullable();
-            $table->string('province_code', 20)->nullable();
-            $table->string('district_code', 20)->nullable();
-            $table->string('ward_code', 20)->nullable();
-            $table->string('address')->nullable();
-            $table->string('facebook_id', 100)->nullable();
-            $table->string('google_id', 100)->nullable();
-            $table->rememberToken();
-            $table->timestamps();
+    {
+        if (!Schema::hasTable('users')) {
+            Schema::create('users', function (Blueprint $table) {
+                $table->id();
+                $table->string('name');
+                $table->string('email')->unique();
+                $table->timestamp('email_verified_at')->nullable();
+                $table->string('password');
+                $table->string('image')->nullable();
+                $table->string('phone_number')->nullable();
+                $table->date('date_of_birth')->nullable();
+                $table->string('sex', 10)->nullable();
+                $table->string('role', 50)->nullable();
+                $table->string('status')->nullable();
+                $table->string('province_code', 20)->nullable();
+                $table->string('district_code', 20)->nullable();
+                $table->string('ward_code', 20)->nullable();
+                $table->string('address')->nullable();
+                $table->string('facebook_id', 100)->nullable();
+                $table->string('google_id', 100)->nullable();
+                $table->rememberToken();
+                $table->timestamps();
 
-            // Define foreign keys
-            $table->foreign('province_code')->references('code')->on('provinces')->onDelete('set null');
-            $table->foreign('district_code')->references('code')->on('districts')->onDelete('set null');
-            $table->foreign('ward_code')->references('code')->on('wards')->onDelete('set null');
-        });
+                // Add indexes for foreign key columns (if not indexed in the reference table)
+                // $table->index('province_code');
+                // $table->index('district_code');
+                // $table->index('ward_code');
+
+                // Define foreign keys
+                // $table->foreign('province_code')->references('code')->on('provinces')->onDelete('set null');
+                // $table->foreign('district_code')->references('code')->on('districts')->onDelete('set null');
+                // $table->foreign('ward_code')->references('code')->on('wards')->onDelete('set null');
+            });
+        }
     }
-}
-
 
     /**
      * Reverse the migrations.
@@ -47,5 +51,4 @@ return new class extends Migration {
     {
         Schema::dropIfExists('users');
     }
-
 };

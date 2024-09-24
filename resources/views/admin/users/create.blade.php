@@ -1,80 +1,9 @@
 @extends('admin.layoutadmin')
-
-@push('styles')
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-{{-- <style>
-    .form-group {
-        margin-bottom: 15px; /* Adjust spacing */
-    }
-
-    .form-group label {
-        font-weight: bold;
-        font-size: 13px; /* Adjust font size */
-        margin-bottom: 5px;
-        display: block;
-    }
-
-    .form-control {
-        border-radius: 4px;
-        border: 1px solid #ccc;
-        padding: 6px; /* Adjust padding */
-        height: 34px; /* Adjust height */
-        font-size: 13px; /* Adjust font size */
-        max-width: 100%; /* Ensure it doesn't exceed width */
-    }
-
-    .ibox-title {
-        background-color: #f3f3f4;
-        border-bottom: 1px solid #e7eaec;
-        color: #676a6c;
-        padding: 10px; /* Adjust padding */
-        margin-bottom: 10px;
-    }
-
-    .ibox-content {
-        padding: 15px; /* Adjust padding */
-        background-color: #ffffff;
-        border: 1px solid #e7eaec;
-        margin-bottom: 20px;
-        border-radius: 4px;
-    }
-
-    .panel-title h3 {
-        font-weight: 700;
-        color: black;
-        font-size: 20px;
-    }
-
-    .panel-description {
-        font-size: 14px; /* Font size smaller than title */
-        color: #666; /* Lighter font color */
-    }
-
-    .col-lg-6, .col-lg-12 {
-        padding-left: 15px;
-        padding-right: 15px;
-    }
-</style> --}}
-@endpush
-
-@push('scripts')
-@flasher_render
+{{-- @push('scripts')
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-<script src="{{ asset('backend/library/location.js') }}"></script> <!-- Sử dụng location.js để tải dữ liệu địa phương -->
-<script>
-    $(document).ready(function() {
-        $('.select2').select2(); // Khởi tạo select2
-    });
-
-    // Đặt giá trị cho các biến nếu cần
-    var province_id = "{{ old('province_id') }}";
-    var district_id = "{{ old('district_id') }}";
-    var ward_id = "{{ old('ward_id') }}";
-</script>
-@endpush
-
+@endpush --}}
 @section('content')
+@flasher_render
 <div class="row wrapper border-bottom white-bg page-heading">
     <div class="col-lg-10">
         <h2>Thêm Người Dùng Mới</h2>
@@ -184,40 +113,28 @@
                     <h5>Thông tin liên hệ</h5>
                 </div>
                 <div class="ibox-content">
-                    <!-- Province and District Row -->
                     <div class="row">
+                        <!-- Thành Phố -->
                         <div class="col-lg-6">
                             <div class="form-group">
-                                <label for="province_id">Thành Phố</label>
-                                <select name="province_id" id="province_id" class="form-control select2 location" data-target="districts">
-                                    <option value="">[Chọn Thành Phố]</option>
-                                    @if(isset($provinces))
-                                        @foreach ($provinces as $province)
-                                            <option value="{{ $province->code }}" {{ old('province_id') == $province->code ? 'selected' : '' }}>{{ $province->name }}</option>
-                                        @endforeach
-                                    @endif
-                                </select>
+                                <label for="province_code">Mã Tỉnh/Thành Phố</label>
+                                <input type="text" name="province_code" id="province_code" class="form-control" value="{{ old('province_code') }}">
                             </div>
                         </div>
+                        <!-- Quận/Huyện -->
                         <div class="col-lg-6">
                             <div class="form-group">
-                                <label for="district_id">Quận/Huyện</label>
-                                <select name="district_id" id="district_id" class="form-control select2 location districts" data-target="wards">
-                                    <option value="">[Chọn Quận/Huyện]</option>
-                                    {{-- Options sẽ được tải động từ JS --}}
-                                </select>
+                                <label for="district_code">Mã Quận/Huyện</label>
+                                <input type="text" name="district_code" id="district_code" class="form-control" value="{{ old('district_code') }}">
                             </div>
                         </div>
                     </div>
-                    <!-- Ward and Address Row -->
+                    <!-- Phường/Xã và Địa chỉ -->
                     <div class="row">
                         <div class="col-lg-6">
                             <div class="form-group">
-                                <label for="ward_id">Phường/Xã</label>
-                                <select name="ward_id" id="ward_id" class="form-control select2 wards">
-                                    <option value="">[Chọn Phường/Xã]</option>
-                                    {{-- Options sẽ được tải động từ JS --}}
-                                </select>
+                                <label for="ward_code">Mã Phường/Xã</label>
+                                <input type="text" name="ward_code" id="ward_code" class="form-control" value="{{ old('ward_code') }}">
                             </div>
                         </div>
                         <div class="col-lg-6">
@@ -227,24 +144,47 @@
                             </div>
                         </div>
                     </div>
-                    <!-- Phone Row -->
+                    <!-- Số điện thoại -->
                     <div class="row">
                         <div class="col-lg-6">
                             <div class="form-group">
-                                <label for="phone">Số điện thoại</label>
-                                <input type="text" name="phone" id="phone" class="form-control" value="{{ old('phone') }}">
+                                <label for="phone_number">Số điện thoại</label>
+                                <input type="text" name="phone_number" id="phone_number" class="form-control" value="{{ old('phone_number') }}">
                             </div>
                         </div>
                     </div>
-                    <!-- Action Buttons -->
+                    <!-- Facebook ID và Google ID -->
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label for="facebook_id">Facebook ID</label>
+                                <input type="text" name="facebook_id" id="facebook_id" class="form-control" value="{{ old('facebook_id') }}">
+                                <!-- Hiển thị liên kết Facebook nếu có -->
+                                @if(old('facebook_id'))
+                                    <a href="https://www.facebook.com/{{ old('facebook_id') }}" target="_blank">Xem tài khoản Facebook</a>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label for="google_id">Google ID</label>
+                                <input type="text" name="google_id" id="google_id" class="form-control" value="{{ old('google_id') }}">
+                                <!-- Chỉ hiển thị Google ID, không có URL -->
+                                @if(old('google_id'))
+                                    <p>ID Google: {{ old('google_id') }}</p>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Nút hành động -->
                     <div class="form-group text-right">
                         <button type="submit" class="btn btn-primary">Thêm Mới</button>
                         <a href="{{ route('users.index') }}" class="btn btn-secondary">Hủy</a>
                     </div>
-                    </form>
                 </div>
             </div>
         </div>
+        
     </div>
 </div>
 @endsection
