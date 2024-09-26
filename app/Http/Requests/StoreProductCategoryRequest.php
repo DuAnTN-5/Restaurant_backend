@@ -4,14 +4,14 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreCategoryRequest extends FormRequest
+class StoreProductCategoryRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return false;
+        return true; // Đặt thành true để cho phép request
     }
 
     /**
@@ -22,9 +22,11 @@ class StoreCategoryRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255|unique:categories,name',
-            'slug' => 'required|string|unique:categories,slug',
-            'description' => 'nullable|string|max:500',
+            'name' => 'required|string|max:255',
+            'slug' => 'required|string|unique:product_categories,slug',
+            'description' => 'nullable|string',
+            'position' => 'nullable|integer',
+            'status' => 'required|string|in:active,inactive', // Chỉ định các trạng thái hợp lệ
         ];
     }
 }

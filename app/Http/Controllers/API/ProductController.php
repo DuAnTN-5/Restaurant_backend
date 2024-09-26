@@ -2,42 +2,89 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Models\Product;
-use App\Http\Resources\ProductResource;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreProductRequest;
+use App\Http\Resources\ProductResource;
+use App\Models\Product;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
+    // Lấy danh sách tất cả sản phẩm
     public function index()
     {
-        // Trả về danh sách sản phẩm với Resource
-        return ProductResource::collection(Product::with('category')->get());
+        $products = Product::all();
+        return response()->json([
+            'status' => true,
+            'data' => ProductResource::collection($products),
+        ]);
     }
 
+    // Lấy chi tiết sản phẩm
     public function show($id)
     {
-        // Trả về chi tiết sản phẩm với Resource
-        return new ProductResource(Product::with('category')->findOrFail($id));
+        $product = Product::find($id);
+        if (!$product) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Sản phẩm không tìm thấy.',
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => true,
+            'data' => new ProductResource($product),
+        ]);
     }
 
-    public function store(StoreProductRequest  $request)
+    // Thêm sản phẩm mới
+    public function store(StoreProductRequest $request)
     {
-        $product = Product::create($request->all());
-        return new ProductResource($product);
+        $product = Product::create($request->validated());
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Sản phẩm đã được tạo thành công.',
+            'data' => new ProductResource($product),
+        ], 201);
     }
 
-    public function update(StoreProductRequest  $request, $id)
+    // Cập nhật sản phẩm
+    public function update(StoreProductRequest $request, $id)
     {
-        $product = Product::findOrFail($id);
-        $product->update($request->all());
-        return new ProductResource($product);
+        $product = Product::find($id);
+        if (!$product) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Sản phẩm không tìm thấy.',
+            ], 404);
+        }
+
+        $product->update($request->validated());
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Sản phẩm đã được cập nhật thành công.',
+            'data' => new ProductResource($product),
+        ]);
     }
 
+    // Xóa sản phẩm
     public function destroy($id)
     {
-        Product::destroy($id);
-        return response()->json(null, 204);
+        $product = Product::find($id);
+        if (!$product) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Sản phẩm không tìm thấy.',
+            ], 404);
+        }
+
+        $product->delete();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Sản phẩm đã được xóa thành công.',
+        ], 204);
     }
 }

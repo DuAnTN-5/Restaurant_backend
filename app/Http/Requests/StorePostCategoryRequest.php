@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreProductRequest extends FormRequest
+class StorePostCategoryRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,13 +23,10 @@ class StoreProductRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'category_id' => 'required|exists:product_categories,id', // Chỉ định bảng product_categories
-            'slug' => 'required|string|unique:products,slug',
-            'price' => 'required|numeric|min:0',
-            'main_ingredients' => 'required|string',
-            'product_code' => 'required|string|unique:products,product_code',
-            'image_url' => 'nullable|url',
+            'slug' => 'required|string|unique:post_categories,slug',
             'description' => 'nullable|string',
+            'position' => 'nullable|integer',
+            'status' => 'required|string|in:active,inactive', // Chỉ định các trạng thái hợp lệ
         ];
     }
 }

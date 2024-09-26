@@ -10,7 +10,15 @@ class Post extends Model
     use HasFactory;
 
     // Các trường có thể ghi vào cơ sở dữ liệu
-    protected $fillable = ['title', 'body', 'user_id', 'category_id', 'status', 'image_url'];
+    protected $fillable = [
+        'title', 
+        'body', 
+        'user_id', 
+        'category_id', 
+        'status', 
+        'position', 
+        'image_url' // Thêm 'position' và 'image_url' vào fillable
+    ];
 
     // Thiết lập quan hệ với bảng post_categories
     public function category()

@@ -2,26 +2,32 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
+use App\Models\Product;
+use Faker\Factory as Faker;
 
 class ProductSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
-    public function run(): void
+    public function run()
     {
-        DB::table('products')->insert([
-            ['name' => 'Phở bò', 'category_id' => 1, 'slug' => 'pho-bo', 'price' => 50000, 'ingredients' => 'Thịt bò, bánh phở', 'image_url' => 'pho_bo.jpg', 'description' => 'Phở bò truyền thống', 'product_code' => 'P001'],
-            ['name' => 'Bánh mì', 'category_id' => 2, 'slug' => 'banh-mi', 'price' => 20000, 'ingredients' => 'Bánh mì, thịt nguội', 'image_url' => 'banh_mi.jpg', 'description' => 'Bánh mì thịt nguội', 'product_code' => 'P002'],
-            ['name' => 'Heo Kobe', 'category_id' => 3, 'slug' => 'pho-bo', 'price' => 70000, 'ingredients' => 'Thịt bò, bánh phở', 'image_url' => 'pho_bo.jpg', 'description' => 'Phở bò truyền thống', 'product_code' => 'P003'],
-            ['name' => 'Bò Alaska', 'category_id' => 2, 'slug' => 'banh-mi', 'price' => 60000, 'ingredients' => 'Bánh mì, thịt nguội', 'image_url' => 'banh_mi.jpg', 'description' => 'Bánh mì thịt nguội', 'product_code' => 'P004'],
-            ['name' => 'Tôm hoàng đế', 'category_id' => 4, 'slug' => 'pho-bo', 'price' => 50000, 'ingredients' => 'Thịt bò, bánh phở', 'image_url' => 'pho_bo.jpg', 'description' => 'Phở bò truyền thống', 'product_code' => 'P005'],
-            ['name' => 'Cháo gạo', 'category_id' => 4, 'slug' => 'banh-mi', 'price' => 80000, 'ingredients' => 'Bánh mì, thịt nguội', 'image_url' => 'banh_mi.jpg', 'description' => 'Bánh mì thịt nguội', 'product_code' => 'P006'],
-            ['name' => 'Cơm chó', 'category_id' => 3, 'slug' => 'pho-bo', 'price' => 90000, 'ingredients' => 'Thịt bò, bánh phở', 'image_url' => 'pho_bo.jpg', 'description' => 'Phở bò truyền thống', 'product_code' => 'P007'],
-            ['name' => 'Bún thịt nguội', 'category_id' => 2, 'slug' => 'banh-mi', 'price' => 80000, 'ingredients' => 'Bánh mì, thịt nguội', 'image_url' => 'banh_mi.jpg', 'description' => 'Bánh mì thịt nguội', 'product_code' => 'P008'],
-        ]);
+        $faker = Faker::create('vi_VN');
+        $categories = [1, 2, 3, 4]; // Giả sử bạn có các ID này trong bảng danh mục sản phẩm
+
+        foreach (range(1, 30) as $index) {
+            Product::create([
+                'name' => 'Sản phẩm ' . $index,
+                'description' => 'Mô tả cho sản phẩm ' . $index . ' với nhiều tính năng đặc biệt.',
+                'price' => $faker->numberBetween(10000, 100000), // Giá từ 10.000 đến 100.000 VND
+                'category_id' => $faker->randomElement($categories),
+                'type' => $index % 2 == 0 ? 'food' : 'beverage', // Ví dụ phân loại sản phẩm
+                'image_url' => $faker->imageUrl(),
+                'stock_quantity' => $faker->numberBetween(0, 100), // Số lượng tồn kho
+                'discount_price' => $faker->optional()->randomFloat(2, 5000, 50000), // Giá khuyến mãi
+                'availability' => $faker->boolean(), // Tình trạng có sẵn
+                'position' => $index,
+                'slug' => 'san-pham-' . $index, // Tạo slug
+                'status' => 'active', // Tình trạng sản phẩm
+            ]);
+        }
     }
 }
