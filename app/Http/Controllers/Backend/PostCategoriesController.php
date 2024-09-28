@@ -6,14 +6,26 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\PostCategory;
 use Flasher\Prime\FlasherInterface;
+use Illuminate\Support\Str;
 
 class PostCategoriesController extends Controller
 {
     // Hiển thị danh sách các danh mục bài viết
-    public function index()
+    public function index(Request $request)
     {
-        $categories = PostCategory::all();
-        return view('admin.PostCategories.index', compact('categories'));
+        $search = $request->query('search');
+
+        if ($search) {
+            // Tìm kiếm danh mục theo tên hoặc slug
+            $categories = PostCategory::where('name', 'LIKE', "%{$search}%")
+                                      ->orWhere('slug', 'LIKE', "%{$search}%")
+                                      ->paginate(10);
+        } else {
+            // Hiển thị toàn bộ danh mục nếu không tìm kiếm
+            $categories = PostCategory::paginate(3);
+        }
+
+        return view('admin.postcategories.index', compact('categories'));
     }
 
     // Hiển thị form tạo danh mục mới
@@ -27,13 +39,15 @@ class PostCategoriesController extends Controller
     {
         $request->validate([
             'name' => 'required|max:255',
-            'slug' => 'required|unique:post_categories,slug',
             'description' => 'nullable|max:1000',
         ]);
 
+        // Tạo slug tự động từ tên nếu người dùng không cung cấp
+        $slug = $request->input('slug') ? $request->input('slug') : Str::slug($request->name);
+
         PostCategory::create([
             'name' => $request->name,
-            'slug' => $request->slug,
+            'slug' => $slug, // Sử dụng slug tự động
             'description' => $request->description,
         ]);
 
@@ -55,13 +69,15 @@ class PostCategoriesController extends Controller
 
         $request->validate([
             'name' => 'required|max:255',
-            'slug' => 'required|unique:post_categories,slug,' . $category->id,
             'description' => 'nullable|max:1000',
         ]);
 
+        // Tạo slug tự động từ tên nếu người dùng không cung cấp
+        $slug = $request->input('slug') ? $request->input('slug') : Str::slug($request->name);
+
         $category->update([
             'name' => $request->name,
-            'slug' => $request->slug,
+            'slug' => $slug, // Sử dụng slug tự động
             'description' => $request->description,
         ]);
 
@@ -77,5 +93,25 @@ class PostCategoriesController extends Controller
 
         $flasher->addSuccess('Danh mục bài viết đã được xóa!');
         return redirect()->route('PostCategories.index');
+    }
+
+    // Toggle trạng thái danh mục bài viết
+    public function toggleStatus($id)
+    {
+        $category = PostCategory::find($id);
+
+        if ($category) {
+            \Log::info('Trạng thái hiện tại: ' . $category->status);
+
+            // Toggle status
+            $category->status = $category->status === 'active' ? 'inactive' : 'active';
+            $category->save();
+
+            \Log::info('Trạng thái sau khi thay đổi: ' . $category->status);
+
+            return response()->json(['status' => $category->status]);
+        }
+
+        return response()->json(['error' => 'Category not found'], 404);
     }
 }

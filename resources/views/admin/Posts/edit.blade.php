@@ -1,98 +1,113 @@
 @extends('admin.layoutadmin')
 
-@push('styles')
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-@endpush
-
-@push('scripts')
-    @flasher_render
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            $('.select2').select2(); // Khởi tạo select2
-        });
-    </script>
-@endpush
-
 @section('content')
-<div class="row wrapper border-bottom white-bg page-heading">
-    <div class="col-lg-10">
-        <h2>Chỉnh Sửa Danh Mục</h2>
-        <ol class="breadcrumb">
-            <li><a href="{{ route('admin') }}">Trang Chủ</a></li>
-            <li><a>Quản Lý Danh Mục</a></li>
-            <li class="active"><strong>Chỉnh Sửa</strong></li>
-        </ol>
+    <div class="row wrapper border-bottom white-bg page-heading">
+        <div class="col-lg-10">
+            <h2>Chỉnh Sửa Bài Viết</h2>
+            <ol class="breadcrumb">
+                <li>
+                    <a href="{{ route('admin') }}">Trang Chủ</a>
+                </li>
+                <li>
+                    <a href="{{ route('posts.index') }}">Danh Sách Bài Viết</a>
+                </li>
+                <li class="active">
+                    <strong>Chỉnh Sửa Bài Viết</strong>
+                </li>
+            </ol>
+        </div>
     </div>
-</div>
 
-<div class="wrapper wrapper-content animated fadeInRight">
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="ibox float-e-margins">
-                <div class="ibox-title">
-                    <h5>Chỉnh Sửa Thông Tin Danh Mục</h5>
-                </div>
-                <div class="ibox-content">
-                    <form method="POST" action="{{ route('categories.update', $category->id) }}" enctype="multipart/form-data">
-                        @csrf
-                        @method('PUT')
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>Chỉnh Sửa Bài Viết</h5>
+                    </div>
+                    <div class="ibox-content">
+                        <!-- Hiển thị lỗi nếu có -->
+                        @if ($errors->any())
+                            <div class="alert alert-danger">
+                                <ul>
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
 
-                        <!-- Category Name -->
-                        <div class="form-group">
-                            <label for="name">Tên Danh Mục <span class="text-danger">(*)</span></label>
-                            <input type="text" name="name" id="name" class="form-control" value="{{ old('name', $category->name) }}" required>
-                        </div>
+                        <!-- Form chỉnh sửa bài viết -->
+                        <form method="POST" action="{{ route('posts.update', $post->id) }}" enctype="multipart/form-data">
+                            @csrf
+                            @method('PUT')
 
-                        <!-- Parent Category -->
-                        <div class="form-group">
-                            <label for="parent_id">Danh Mục Cha</label>
-                            <select name="parent_id" id="parent_id" class="form-control select2">
-                                <option value="">[Chọn Danh Mục Cha]</option>
-                                @foreach ($categories as $parentCategory)
-                                    <option value="{{ $parentCategory->id }}" {{ old('parent_id', $category->parent_id) == $parentCategory->id ? 'selected' : '' }}>
-                                        {{ $parentCategory->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
+                            <!-- Tiêu đề -->
+                            <div class="form-group">
+                                <label for="title">Tiêu đề:</label>
+                                <input type="text" name="title" class="form-control" value="{{ old('title', $post->title) }}" required>
+                            </div>
 
-                        <!-- Description -->
-                        <div class="form-group">
-                            <label for="description">Mô Tả</label>
-                            <textarea name="description" id="description" class="form-control" rows="3">{{ old('description', $category->description) }}</textarea>
-                        </div>
+                            <!-- Danh mục -->
+                            <div class="form-group">
+                                <label for="category_id">Danh mục:</label>
+                                <select name="category_id" class="form-control" required>
+                                    <option value="">-- Chọn danh mục --</option>
+                                    @foreach ($categories as $category)
+                                        <option value="{{ $category->id }}" {{ old('category_id', $post->category_id) == $category->id ? 'selected' : '' }}>
+                                            {{ $category->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
 
-                        <!-- Image Upload -->
-                        <div class="form-group">
-                            <label for="image">Ảnh Danh Mục</label>
-                            <input type="file" name="image" id="image" class="form-control">
-                            @if ($category->image)
-                                <img src="{{ asset($category->image) }}" height="64" alt="Current Image">
-                            @endif
-                        </div>
+                            <!-- Thứ tự -->
+                            <div class="form-group">
+                                <label for="position">Thứ tự:</label>
+                                <input type="number" name="position" class="form-control" value="{{ old('position', $post->position) }}" required>
+                            </div>
 
-                        <!-- SEO Information -->
-                        <div class="form-group">
-                            <label for="meta_title">Thẻ Meta Title</label>
-                            <input type="text" name="meta_title" id="meta_title" class="form-control" value="{{ old('meta_title', $category->meta_title) }}">
-                        </div>
+                            <!-- Nội dung -->
+                            <div class="form-group">
+                                <label for="body">Nội dung:</label>
+                                <textarea name="body" class="form-control" rows="5" required>{{ old('body', $post->body) }}</textarea>
+                            </div>
 
-                        <div class="form-group">
-                            <label for="meta_description">Thẻ Meta Description</label>
-                            <textarea name="meta_description" id="meta_description" class="form-control" rows="3">{{ old('meta_description', $category->meta_description) }}</textarea>
-                        </div>
+                            <!-- Tóm tắt -->
+                            <div class="form-group">
+                                <label for="summary">Tóm tắt:</label>
+                                <textarea name="summary" class="form-control" rows="3">{{ old('summary', $post->summary) }}</textarea>
+                            </div>
 
-                        <!-- Save Button -->
-                        <div class="form-group text-right">
-                            <button type="submit" class="btn btn-primary">Cập Nhật</button>
-                            <a href="{{ route('categories.index') }}" class="btn btn-secondary">Hủy</a>
-                        </div>
-                    </form>
+                            <!-- Ảnh -->
+                            <div class="form-group">
+                                <label for="image_url">Ảnh:</label>
+                                
+                                <input type="file" name="image_url" class="form-control">
+                                @if($post->image_url)
+                                    <img src="{{ asset($post->image_url) }}" alt="Image" width="150">
+                                @else
+                                    <img src="{{ asset('default-post.png') }}" alt="Default Image" width="150">
+                                @endif
+                            </div>
+
+                            <!-- Trạng thái -->
+                            <div class="form-group">
+                                <label for="status">Trạng thái:</label>
+                                <select name="status" class="form-control" required>
+                                    <option value="draft" {{ old('status', $post->status) == 'draft' ? 'selected' : '' }}>Nháp</option>
+                                    <option value="published" {{ old('status', $post->status) == 'published' ? 'selected' : '' }}>Đã xuất bản</option>
+                                    <option value="archived" {{ old('status', $post->status) == 'archived' ? 'selected' : '' }}>Lưu trữ</option>
+                                </select>
+                            </div>
+
+                            <!-- Nút hành động -->
+                            <button type="submit" class="btn btn-primary">Cập Nhật Bài Viết</button>
+                            <a href="{{ route('posts.index') }}" class="btn btn-secondary">Hủy</a>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 @endsection

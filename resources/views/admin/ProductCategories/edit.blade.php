@@ -1,22 +1,7 @@
 @extends('admin.layoutadmin')
-
-@push('styles')
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-@endpush
-
-@push('scripts')
-    @flasher_render
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            $('.select2').select2(); // Khởi tạo select2
-        });
-    </script>
-@endpush
-
 @section('content')
 <div class="row wrapper border-bottom white-bg page-heading">
+    @flasher_render
     <div class="col-lg-10">
         <h2>Chỉnh Sửa Danh Mục</h2>
         <ol class="breadcrumb">
@@ -32,10 +17,11 @@
         <div class="col-lg-12">
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
-                    <h5>Chỉnh Sửa Thông Tin Danh Mục</h5>
+                    <h5>Chỉnh Sửa Danh Mục</h5>
                 </div>
                 <div class="ibox-content">
-                    <form method="POST" action="{{ route('categories.update', $category->id) }}" enctype="multipart/form-data">
+                    <!-- Form Chỉnh Sửa -->
+                    <form method="POST" action="{{ route('product-categories.update', $category->id) }}" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
 
@@ -45,13 +31,13 @@
                             <input type="text" name="name" id="name" class="form-control" value="{{ old('name', $category->name) }}" required>
                         </div>
 
-                        <!-- Parent Category -->
-                        <div class="form-group">
+                         <!-- Parent Category -->
+                         <div class="form-group">
                             <label for="parent_id">Danh Mục Cha</label>
                             <select name="parent_id" id="parent_id" class="form-control select2">
                                 <option value="">[Chọn Danh Mục Cha]</option>
                                 @foreach ($categories as $parentCategory)
-                                    <option value="{{ $parentCategory->id }}" {{ old('parent_id', $category->parent_id) == $parentCategory->id ? 'selected' : '' }}>
+                                    <option value="{{ $parentCategory->id }}" {{ old('parent_id') == $parentCategory->id ? 'selected' : '' }}>
                                         {{ $parentCategory->name }}
                                     </option>
                                 @endforeach
@@ -73,12 +59,13 @@
                             @endif
                         </div>
 
-                        <!-- SEO Information -->
+                        <!-- Meta Title -->
                         <div class="form-group">
                             <label for="meta_title">Thẻ Meta Title</label>
                             <input type="text" name="meta_title" id="meta_title" class="form-control" value="{{ old('meta_title', $category->meta_title) }}">
                         </div>
 
+                        <!-- Meta Description -->
                         <div class="form-group">
                             <label for="meta_description">Thẻ Meta Description</label>
                             <textarea name="meta_description" id="meta_description" class="form-control" rows="3">{{ old('meta_description', $category->meta_description) }}</textarea>
@@ -87,8 +74,9 @@
                         <!-- Save Button -->
                         <div class="form-group text-right">
                             <button type="submit" class="btn btn-primary">Cập Nhật</button>
-                            <a href="{{ route('categories.index') }}" class="btn btn-secondary">Hủy</a>
+                            <a href="{{ route('product-categories.index') }}" class="btn btn-secondary">Hủy</a>
                         </div>
+
                     </form>
                 </div>
             </div>

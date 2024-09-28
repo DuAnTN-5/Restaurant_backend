@@ -6,21 +6,31 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\ProductCategory;
 use Flasher\Prime\FlasherInterface;
+use Illuminate\Support\Str;
 
 class ProductCategoriesController extends Controller
 {
-    // Hiển thị danh sách các danh mục sản phẩm
-    public function index()
+    // Hiển thị danh sách các danh mục sản phẩm với tìm kiếm và phân trang
+    public function index(Request $request)
     {
-        // Lấy tất cả các danh mục sản phẩm
-        $categories = ProductCategory::all();
-        return view('admin.ProductCategories.index', compact('categories'));
+        // Lấy từ khóa tìm kiếm từ request (nếu có)
+        $search = $request->query('search');
+
+        // Tìm kiếm theo tên hoặc slug, phân trang 10 mục mỗi trang
+        $categories = ProductCategory::when($search, function ($query) use ($search) {
+            $query->where('name', 'LIKE', "%{$search}%")
+                ->orWhere('slug', 'LIKE', "%{$search}%");
+        })->paginate(10)->appends(['search' => $search]); // Giữ tham số tìm kiếm khi phân trang
+
+        return view('admin.ProductCategories.index', compact('categories', 'search'));
     }
 
     // Hiển thị form tạo danh mục sản phẩm mới
     public function create()
     {
-        return view('admin.ProductCategories.create');
+        // Lấy tất cả các danh mục cha để hiển thị trong select box
+        $categories = ProductCategory::whereNull('parent_id')->get();
+        return view('admin.ProductCategories.create', compact('categories'));
     }
 
     // Lưu danh mục sản phẩm vào cơ sở dữ liệu
@@ -28,16 +38,20 @@ class ProductCategoriesController extends Controller
     {
         // Validate input
         $request->validate([
-            'name' => 'required|max:255',
-            'slug' => 'required|unique:product_categories,slug',
+            'name' => 'required|max:255|unique:product_categories,name',
             'description' => 'nullable|max:1000',
+            'parent_id' => 'nullable|exists:product_categories,id', // Parent ID validation
         ]);
+
+        // Tạo slug tự động từ tên nếu người dùng không cung cấp
+        $slug = Str::slug($request->name);
 
         // Tạo danh mục
         ProductCategory::create([
             'name' => $request->name,
-            'slug' => $request->slug,
+            'slug' => $slug,
             'description' => $request->description,
+            'parent_id' => $request->parent_id, // Lưu parent_id nếu có
         ]);
 
         // Thông báo thêm thành công
@@ -50,7 +64,9 @@ class ProductCategoriesController extends Controller
     public function edit($id)
     {
         $category = ProductCategory::findOrFail($id);
-        return view('admin.ProductCategories.edit', compact('category'));
+        // Lấy tất cả các danh mục cha trừ chính danh mục đang chỉnh sửa
+        $categories = ProductCategory::whereNull('parent_id')->where('id', '!=', $id)->get();
+        return view('admin.ProductCategories.edit', compact('category', 'categories'));
     }
 
     // Cập nhật danh mục sản phẩm
@@ -60,16 +76,20 @@ class ProductCategoriesController extends Controller
 
         // Validate input
         $request->validate([
-            'name' => 'required|max:255',
-            'slug' => 'required|unique:product_categories,slug,' . $category->id,
+            'name' => 'required|max:255|unique:product_categories,name,' . $category->id,
             'description' => 'nullable|max:1000',
+            'parent_id' => 'nullable|exists:product_categories,id|not_in:' . $id, // Parent ID validation
         ]);
+
+        // Tạo slug tự động từ tên nếu người dùng không cung cấp
+        $slug = Str::slug($request->name);
 
         // Cập nhật danh mục
         $category->update([
             'name' => $request->name,
-            'slug' => $request->slug,
+            'slug' => $slug,
             'description' => $request->description,
+            'parent_id' => $request->parent_id, // Cập nhật parent_id nếu có
         ]);
 
         // Thông báo cập nhật thành công

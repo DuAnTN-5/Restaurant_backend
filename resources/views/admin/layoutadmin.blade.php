@@ -8,6 +8,10 @@
 
     <title>HightFive Restaurant | Admin</title>
 
+    <!-- Favicon mới -->
+    <link rel="icon" href="{{ asset('favicon_io/favicon.ico') }}" type="image/x-icon">
+
+    <!-- Liên kết tới các tệp CSS -->
     <link href="{{ asset('backend/css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ asset('backend/font-awesome/css/font-awesome.css') }}" rel="stylesheet">
 
@@ -16,13 +20,17 @@
 
     <link href="{{ asset('backend/css/animate.css') }}" rel="stylesheet">
     <link href="{{ asset('backend/css/style.css') }}" rel="stylesheet">
+
+    <!-- Custom CSS cho CKEditor -->
     <style>
         .ck-editor__editable_inline {
             min-height: 250px;
             max-height: 450px;
         }
+        
     </style>
 </head>
+
 
 <body>
     @flasher_render
@@ -724,7 +732,7 @@
 
     <!-- ChartJS-->
     <script src="{{ asset('backend/js/plugins/chartJs/Chart.min.js') }}"></script>
-
+    <script src="https://cdn.ckeditor.com/ckeditor5/34.2.0/super-build/ckeditor.js"></script>
     <script>
         $(document).ready(function() {
 
@@ -838,3 +846,125 @@
 </body>
 
 </html>
+<script>
+    ClassicEditor
+    .create(document.querySelector('#Content'), {
+        toolbar: {
+            items: [
+                'heading', '|', 'findAndReplace', 'selectAll', '|',
+                'bold', 'italic', 'underline', 'subscript', 'superscript', 'removeFormat', '|',
+                'bulletedList', 'numberedList', '|', 'outdent', 'indent', '|',
+                'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor', 'highlight', '|',
+                'alignment', '|', 'link', 'insertImage', 'insertTable', 'mediaEmbed', '|',
+                'horizontalLine', '|', 'sourceEditing'
+            ],
+            shouldNotGroupWhenFull: true
+        },
+        placeholder: 'Nội Dung Bài Viết',
+        fontFamily: {
+            options: [
+                'default',
+                'Arial, Helvetica, sans-serif',
+                'Courier New, Courier, monospace',
+                'Georgia, serif',
+                'Lucida Sans Unicode, Lucida Grande, sans-serif',
+                'Tahoma, Geneva, sans-serif',
+                'Times New Roman, Times, serif',
+                'Trebuchet MS, Helvetica, sans-serif',
+                'Verdana, Geneva, sans-serif'
+            ],
+            supportAllValues: true
+        },
+        fontSize: {
+            options: [10, 12, 14, 'default', 18, 20, 22],
+            supportAllValues: true
+        },
+        htmlSupport: {
+            allow: [{
+                name: /.*/,
+                attributes: true,
+                classes: true,
+                styles: true
+            }]
+        },
+        link: {
+            decorators: {
+                addTargetToExternalLinks: true,
+                defaultProtocol: 'https://',
+                toggleDownloadable: {
+                    mode: 'manual',
+                    label: 'Downloadable',
+                    attributes: {
+                        download: 'file'
+                    }
+                }
+            }
+        },
+        mention: {
+            feeds: [{
+                marker: '@',
+                feed: [
+                    '@apple', '@bears', '@brownie', '@cake', '@candy', '@canes',
+                    '@chocolate', '@cookie', '@cotton', '@cream', '@cupcake', '@danish',
+                    '@donut', '@dragée', '@fruitcake', '@gingerbread', '@gummi', '@ice', '@jelly-o',
+                    '@liquorice', '@macaroon', '@marzipan', '@oat', '@pie', '@plum', '@pudding',
+                    '@sesame', '@snaps', '@soufflé', '@sugar', '@sweet', '@topping', '@wafer'
+                ],
+                minimumCharacters: 1
+            }]
+        },
+        // Removing the removePlugins section to keep all the default plugins enabled
+        // Keeping only the optional plugins commented out if not necessary
+        removePlugins: [
+            'RealTimeCollaborativeComments',
+            'RealTimeCollaborativeTrackChanges',
+            'RealTimeCollaborativeRevisionHistory',
+            'PresenceList',
+            'Comments',
+            'TrackChanges',
+            'TrackChangesData',
+            'RevisionHistory',
+            'Pagination',
+            'WProofreader',
+            'MathType'
+        ]
+    })
+    .catch(error => {
+        console.error(error);
+    });
+
+    // DataTable Initialization
+    $(document).ready(function() {
+        $('.dataTables-example').DataTable({
+            pageLength: 10,
+            responsive: true,
+            dom: '<"html5buttons"B>lTfgitp',
+            buttons: [
+                {
+                    extend: 'copy'
+                },
+                {
+                    extend: 'csv'
+                },
+                {
+                    extend: 'excel',
+                    title: 'ExampleFile'
+                },
+                {
+                    extend: 'pdf',
+                    title: 'ExampleFile'
+                },
+                {
+                    extend: 'print',
+                    customize: function(win) {
+                        $(win.document.body).addClass('white-bg');
+                        $(win.document.body).css('font-size', '10px');
+                        $(win.document.body).find('table')
+                            .addClass('compact')
+                            .css('font-size', 'inherit');
+                    }
+                }
+            ]
+        });
+    });
+</script>

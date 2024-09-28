@@ -76,3 +76,13 @@
 @push('styles')
     <link href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css" rel="stylesheet">
 @endpush
+@section('scripts')
+    <!-- Page-Level Scripts -->
+    <script src="https://cdn.ckeditor.com/ckeditor5/34.2.0/super-build/ckeditor.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Initialize CKEditor for the 'noiDung' textarea
+            CKEDITOR.replace('noiDung');
+        });
+    </script>
+@endsection

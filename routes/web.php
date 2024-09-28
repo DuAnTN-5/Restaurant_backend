@@ -1,4 +1,5 @@
 <?php
+
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -46,7 +47,7 @@ Route::middleware('auth')->prefix('admin')->group(function () {
         Route::get('/users/{user}/edit', 'edit')->name('users.edit'); // Form to edit a user
         Route::put('/users/{user}', 'update')->name('users.update'); // Update a user
         Route::delete('/users/{user}', 'destroy')->name('users.destroy'); // Delete a user
-        Route::post('/users/update-status', [UserController::class, 'updateStatus'])->name('users.updateStatus');
+        Route::post('/users/{id}/update-status', 'updateStatus')->name('users.update-status'); // Update status of user
     });
 });
 
@@ -58,6 +59,7 @@ Route::prefix('admin/categories/post-categories')->group(function () {
     Route::get('/{id}/edit', [PostCategoriesController::class, 'edit'])->name('PostCategories.edit');
     Route::put('/{id}', [PostCategoriesController::class, 'update'])->name('PostCategories.update');
     Route::delete('/{id}', [PostCategoriesController::class, 'destroy'])->name('PostCategories.destroy');
+    Route::post('/{id}/toggle-status', [PostCategoriesController::class, 'toggleStatus'])->name('PostCategories.toggleStatus');
 });
 
 // Định nghĩa route cho quản lý sản phẩm (Product Categories)
@@ -95,4 +97,3 @@ Route::controller(FacebookController::class)->group(function () {
     Route::get('auth/facebook', 'redirectToFacebook')->name('auth.facebook');
     Route::get('auth/facebook/callback', 'handleFacebookCallback');
 });
-

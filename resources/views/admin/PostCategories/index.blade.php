@@ -1,6 +1,7 @@
 @extends('admin.layoutadmin')
 
 @section('content')
+
     <div class="row wrapper border-bottom white-bg page-heading">
         <div class="col-lg-10">
             <h2>Danh Sách Loại Bài Viết</h2>
@@ -17,7 +18,8 @@
             </ol>
         </div>
         <div class="col-lg-2 text-right">
-            <a href="{{ route('PostCategories.create') }}" class="btn btn-primary" style="margin-top: 20px;">Thêm Loại Bài Viết</a>
+            <a href="{{ route('PostCategories.create') }}" class="btn btn-primary" style="margin-top: 20px;">Thêm Loại Bài
+                Viết</a>
         </div>
     </div>
 
@@ -43,12 +45,25 @@
                     </div>
                     <div class="ibox-content">
                         <div class="table-responsive">
+                            <div class="row">
+                                <div class="col-lg-3 col-lg-offset-9 text-right">
+                            <form method="GET" action="{{ route('PostCategories.index') }}">
+                                <div class="input-group">
+                                    <input type="text" name="search" class="form-control" placeholder="Tìm kiếm danh mục bài viết..."
+                                        value="{{ request()->input('search') }}">
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-primary" type="submit">Tìm kiếm</button>
+                                    </span>
+                                </div>
+                            </form>
+                            </div>
+                            </div>
                             <table class="table table-striped table-bordered table-hover dataTables-categories">
                                 <thead>
                                     <tr>
                                         <th>ID</th>
                                         <th>Tên</th>
-                                        <th>Mô Tả</th>
+                                        <th>Trạng thái</th>
                                         <th>Slug</th>
                                         <th>Thứ Tự</th>
                                         <th>Thao Tác</th>
@@ -56,38 +71,51 @@
                                 </thead>
                                 <tbody>
                                     @foreach ($categories as $category)
-                                        <tr>
-                                            <td>{{ $category->id }}</td>
-                                            <td>{{ $category->name }}</td>
-                                            <td>{{ $category->description }}</td>
-                                            <td>{{ $category->slug }}</td>
-                                            <td>{{ $category->position }}</td> <!-- Thêm thứ tự -->
-                                            <td>
-                                                <a href="{{ route('PostCategories.edit', $category->id) }}" class="btn btn-success">
-                                                    <i class="fa fa-edit"></i>
-                                                </a>
-                                                <form method="POST" action="{{ route('PostCategories.destroy', $category->id) }}" style="display: inline;">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-danger" onclick="return confirm('Xác nhận xóa?')">
-                                                        <i class="fa fa-trash"></i>
-                                                    </button>
-                                                </form>
-                                            </td>
-                                        </tr>
+                                    <tr>
+                                        <td>{{ $category->id }}</td>
+                                        <td>{{ $category->name }}</td>
+                                        <td>
+                                            <button class="btn btn-status-toggle" data-id="{{ $category->id }}">
+                                                @if ($category->status == 'active')
+                                                    <span class="badge badge-success">Active</span>
+                                                @else
+                                                    <span class="badge badge-danger">Inactive</span>
+                                                @endif
+                                            </button>
+                                        </td>
+                                        <td>{{ $category->slug }}</td>
+                                        <td>{{ $category->position }}</td>
+                                        <td>
+                                            <a href="{{ route('PostCategories.edit', $category->id) }}" class="btn btn-success">
+                                                <i class="fa fa-edit"></i>
+                                            </a>
+                                            <form method="POST" action="{{ route('PostCategories.destroy', $category->id) }}" style="display: inline;">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-danger" onclick="return confirm('Xác nhận xóa?')">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
                                     @endforeach
                                 </tbody>
                                 <tfoot>
                                     <tr>
                                         <th>ID</th>
                                         <th>Tên</th>
-                                        <th>Mô Tả</th>
+                                        <th>Trạng thái</th>
                                         <th>Slug</th>
                                         <th>Thứ Tự</th>
                                         <th>Thao Tác</th>
                                     </tr>
                                 </tfoot>
                             </table>
+
+                            <!-- Paginate với Bootstrap 4 -->
+                            <div class="text-left">
+                                {{ $categories->appends(request()->input())->links('pagination::bootstrap-4') }}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -96,12 +124,45 @@
     </div>
 @endsection
 
-@push('styles')
-    <link href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css" rel="stylesheet">
-    <link href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css" rel="stylesheet">
-@endpush
 
-@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.btn-status-toggle').forEach(function (button) {
+            button.addEventListener('click', function () {
+                var categoryId = this.getAttribute('data-id');
+                var button = this;
+
+                // Send an AJAX request to update the status
+                fetch(`/admin/categories/post-categories/${categoryId}/toggle-status`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Kiểm tra nếu response có status không
+                    if (data.status) {
+                        if (data.status === 'active') {
+                            button.innerHTML = '<span class="badge badge-success">Active</span>';
+                        } else {
+                            button.innerHTML = '<span class="badge badge-danger">Inactive</span>';
+                        }
+                    } else {
+                        console.error('Không có dữ liệu trạng thái trả về');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+        });
+    });
+</script>
+
+
+{{-- @push('scripts')
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.2.2/js/dataTables.buttons.min.js"></script>
@@ -117,12 +178,23 @@
                 pageLength: 10,
                 responsive: true,
                 dom: '<"html5buttons"B>lTfgitp',
-                buttons: [
-                    { extend: 'copy' },
-                    { extend: 'csv' },
-                    { extend: 'excel', title: 'DanhSachLoaiBaiViet' },
-                    { extend: 'pdf', title: 'DanhSachLoaiBaiViet' },
-                    { extend: 'print', title: 'DanhSachLoaiBaiViet',
+                buttons: [{
+                        extend: 'copy'
+                    },
+                    {
+                        extend: 'csv'
+                    },
+                    {
+                        extend: 'excel',
+                        title: 'DanhSachLoaiBaiViet'
+                    },
+                    {
+                        extend: 'pdf',
+                        title: 'DanhSachLoaiBaiViet'
+                    },
+                    {
+                        extend: 'print',
+                        title: 'DanhSachLoaiBaiViet',
                         customize: function(win) {
                             $(win.document.body).addClass('white-bg');
                             $(win.document.body).css('font-size', '10px');
@@ -135,4 +207,4 @@
             });
         });
     </script>
-@endpush
+@endpush --}}

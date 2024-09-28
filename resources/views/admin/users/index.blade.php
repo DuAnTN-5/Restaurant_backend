@@ -2,6 +2,7 @@
 
 @section('content')
     <div class="row wrapper border-bottom white-bg page-heading">
+        @flasher_render
         <div class="col-lg-10">
             <h2>Danh Sách Người Dùng</h2>
             <ol class="breadcrumb">
@@ -40,7 +41,7 @@
                             </a>
                         </div>
                     </div>
-                    
+
                     <div class="ibox-content">
                         <div class="table-responsive">
                             <!-- Search form -->
@@ -57,7 +58,7 @@
                                     </form>
                                 </div>
                             </div>
-                            
+
                             <!-- Table -->
                             <table class="table table-striped table-bordered table-hover dataTables-users">
                                 <thead>
@@ -67,7 +68,6 @@
                                         <th>Email</th>
                                         <th>Ảnh</th>
                                         <th>Điện Thoại</th>
-                                        {{-- <th>Ngày Sinh</th> --}}
                                         <th>Tình trạng</th>
                                         <th>Thao Tác</th>
                                     </tr>
@@ -80,16 +80,20 @@
                                             <td>{{ $user->email }}</td>
                                             <td>
                                                 @if ($user->image)
-                                                    <img src="{{ asset($user->image) }}" alt="Image" width="50">
+                                                    <img src="{{ asset($user->image) }}" alt="Image" width="80">
                                                 @else
                                                     <img src="{{ asset('default-avatar.png') }}" alt="Default Image" width="50">
                                                 @endif
                                             </td>
-                                            <td>{{ $user->phone }}</td>
-                                            {{-- <td>{{ $user->date_of_birth }}</td> --}}
+                                            <td>{{ $user->phone_number }}</td>
                                             <td>
-                                                <input type="checkbox" class="js-switch" data-id="{{ $user->id }}"
-                                                    {{ $user->status ? 'checked' : '' }} />
+                                                <button class="btn btn-status-toggle" data-id="{{ $user->id }}">
+                                                    @if ($user->status == 'active')
+                                                        <span class="badge badge-success">Active</span>
+                                                    @else
+                                                        <span class="badge badge-danger">Inactive</span>
+                                                    @endif
+                                                </button>
                                             </td>
                                             <td>
                                                 <a href="{{ route('users.edit', $user->id) }}" class="btn btn-success">
@@ -108,8 +112,8 @@
                                     @endforeach
                                 </tbody>
                             </table>
-                            
-                            <!-- Phần hiển thị phân trang -->
+
+                            <!-- Phân trang -->
                             <div class="text-left">
                                 {{ $users->appends(request()->input())->links('pagination::bootstrap-4') }}
                             </div>
@@ -120,63 +124,107 @@
         </div>
     </div>
 @endsection
+<script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.btn-status-toggle').forEach(function (button) {
+            button.addEventListener('click', function () {
+                var userId = this.getAttribute('data-id'); // Sử dụng userId thay vì categoryId
+                var button = this;
 
-@push('styles')
+                // Gửi AJAX yêu cầu để cập nhật trạng thái người dùng
+                fetch(`/admin/users/update-status`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        id: userId,
+                        status: button.innerText.trim() === 'Active' ? 'inactive' : 'active' // Chuyển đổi trạng thái
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Kiểm tra nếu response có status không
+                    if (data.status) {
+                        if (data.status === 'active') {
+                            button.innerHTML = '<span class="badge badge-success">Active</span>';
+                        } else {
+                            button.innerHTML = '<span class="badge badge-danger">Inactive</span>';
+                        }
+                    } else {
+                        console.error('Không có dữ liệu trạng thái trả về');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+        });
+    });
+</script>
+
+</script>
+{{-- @push('styles')
     <link href="https://cdnjs.cloudflare.com/ajax/libs/switchery/0.8.2/switchery.min.css" rel="stylesheet">
     <style>
         .table-responsive {
             overflow-x: auto;
-            white-space: nowrap;
+            white-space: normal; /* Đảm bảo nội dung có thể xuống dòng */
         }
 
-        table {
-            table-layout: fixed;
+        .dataTables-users {
             width: 100%;
+            table-layout: auto; /* Cho phép bảng điều chỉnh kích thước */
+        }
+
+        th, td {
+            white-space: normal; /* Ngăn ngừa nội dung bảng tạo ra thanh cuộn ngang */
         }
 
         img {
-            max-width: 100%;
+            max-width: 100%; /* Đảm bảo hình ảnh không vượt quá kích thước ô */
             height: auto;
         }
     </style>
-@endpush
+@endpush --}}
 
-@push('scripts')
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/switchery/0.8.2/switchery.min.js"></script>
+{{-- @push('scripts')
     <script>
         $(document).ready(function() {
-            // Khởi tạo Switchery cho các checkbox có class js-switch
-            var elems = Array.prototype.slice.call(document.querySelectorAll('.js-switch'));
-            elems.forEach(function(html) {
-                var switchery = new Switchery(html, {
-                    color: '#1AB394',
-                    size: 'small'
-                });
-            });
-
-            // Xử lý sự kiện khi switch (tình trạng) thay đổi
-            $('.js-switch').change(function() {
+            // Xử lý sự kiện khi click nút trạng thái
+            $('.btn-status-toggle').on('click', function() {
                 var userId = $(this).data('id');
-                var status = $(this).is(':checked') ? 1 : 0;
+                var button = $(this);
+                var currentStatus = button.find('span').hasClass('badge-success') ? 'inactive' : 'active';
 
-                // AJAX để cập nhật trạng thái người dùng
+                // Gửi yêu cầu AJAX để cập nhật trạng thái người dùng
                 $.ajax({
                     url: '{{ route("users.updateStatus") }}',
                     type: 'POST',
                     data: {
                         _token: '{{ csrf_token() }}',
                         id: userId,
-                        status: status
+                        status: currentStatus
                     },
                     success: function(response) {
                         if (response.success) {
+                            if (response.status === 'active') {
+                                button.find('span').removeClass('badge-danger').addClass('badge-success').text('Active');
+                            } else {
+                                button.find('span').removeClass('badge-success').addClass('badge-danger').text('Inactive');
+                            }
                             alert(response.message);
                         } else {
-                            alert('Cập nhật thất bại.');
+                            alert('Cập nhật trạng thái thất bại.');
                         }
+                    },
+                    error: function() {
+                        alert('Đã có lỗi xảy ra, vui lòng thử lại.');
                     }
                 });
             });
         });
     </script>
-@endpush
+@endpush --}}

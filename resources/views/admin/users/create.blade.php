@@ -5,6 +5,7 @@
 @section('content')
 @flasher_render
 <div class="row wrapper border-bottom white-bg page-heading">
+    @flasher_render
     <div class="col-lg-10">
         <h2>Thêm Người Dùng Mới</h2>
         <ol class="breadcrumb">

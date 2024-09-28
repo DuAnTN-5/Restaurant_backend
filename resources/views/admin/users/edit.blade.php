@@ -76,6 +76,7 @@
 
 @section('content')
 <div class="row wrapper border-bottom white-bg page-heading">
+    @flasher_render
     <div class="col-lg-10">
         <h2>Chỉnh Sửa Người Dùng</h2>
         <ol class="breadcrumb">
