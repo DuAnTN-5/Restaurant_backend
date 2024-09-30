@@ -1,6 +1,7 @@
 @extends('admin.layoutadmin')
 
 @section('content')
+
     <div class="row wrapper border-bottom white-bg page-heading">
         <div class="col-lg-10">
             <h2>Danh Sách Loại Sản Phẩm</h2>
@@ -9,7 +10,7 @@
                     <a href="{{ route('admin') }}">Trang Chủ</a>
                 </li>
                 <li>
-                    <a>Quản Lý Loại</a>
+                    <a>Quản Lý Loại Sản Phẩm</a>
                 </li>
                 <li class="active">
                     <strong>Danh Sách Loại Sản Phẩm</strong>
@@ -42,27 +43,28 @@
                         </div>
                     </div>
                     <div class="ibox-content">
-                        <!-- Form tìm kiếm -->
-                        <div class="row">
-                            <div class="col-lg-3 col-lg-offset-9 text-right">
-                                <form method="GET" action="{{ route('product-categories.index') }}">
-                                    <div class="input-group">
-                                        <input type="text" name="search" class="form-control" placeholder="Tìm kiếm loại sản phẩm..." value="{{ request()->input('search') }}">
-                                        <span class="input-group-btn">
-                                            <button class="btn btn-primary" type="submit">Tìm kiếm</button>
-                                        </span>
-                                    </div>
-                                </form>
+                        <div class="table-responsive">
+                            <!-- Form tìm kiếm -->
+                            <div class="row">
+                                <div class="col-lg-3 col-lg-offset-9 text-right">
+                                    <form method="GET" action="{{ route('product-categories.index') }}">
+                                        <div class="input-group">
+                                            <input type="text" name="search" class="form-control" placeholder="Tìm kiếm danh mục sản phẩm..."
+                                                value="{{ request()->input('search') }}">
+                                            <span class="input-group-btn">
+                                                <button class="btn btn-primary" type="submit">Tìm kiếm</button>
+                                            </span>
+                                        </div>
+                                    </form>
+                                </div>
                             </div>
-                        </div>
-
-                        {{-- <div class="table-responsive">
                             <table class="table table-striped table-bordered table-hover dataTables-categories">
                                 <thead>
                                     <tr>
                                         <th>ID</th>
                                         <th>Tên</th>
-                                        <th>Mô Tả</th>
+                                        <th>Trạng thái</th>
+                                        <th>Slug</th>
                                         <th>Thứ Tự</th>
                                         <th>Thao Tác</th>
                                     </tr>
@@ -72,7 +74,16 @@
                                         <tr>
                                             <td>{{ $category->id }}</td>
                                             <td>{{ $category->name }}</td>
-                                            <td>{{ $category->description }}</td>
+                                            <td>
+                                                <button class="btn btn-status-toggle" data-id="{{ $category->id }}">
+                                                    @if ($category->status == 'active')
+                                                        <span class="badge badge-success">Active</span>
+                                                    @else
+                                                        <span class="badge badge-danger">Inactive</span>
+                                                    @endif
+                                                </button>
+                                            </td>
+                                            <td>{{ $category->slug }}</td>
                                             <td>{{ $category->position }}</td>
                                             <td>
                                                 <a href="{{ route('product-categories.edit', $category->id) }}" class="btn btn-success">
@@ -89,16 +100,62 @@
                                         </tr>
                                     @endforeach
                                 </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Tên</th>
+                                        <th>Trạng thái</th>
+                                        <th>Slug</th>
+                                        <th>Thứ Tự</th>
+                                        <th>Thao Tác</th>
+                                    </tr>
+                                </tfoot>
                             </table>
 
-                            <!-- Phân trang -->
-                            <div class="d-flex justify-content-center">
-                                {{ $categories->appends(request()->input())->links() }} <!-- Hiển thị phân trang -->
+                            <!-- Paginate với Bootstrap 4 -->
+                            <div class="text-left">
+                                {{ $categories->appends(request()->input())->links('pagination::bootstrap-4') }}
                             </div>
-                        </div> --}}
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 @endsection
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.btn-status-toggle').forEach(function (button) {
+            button.addEventListener('click', function () {
+                var categoryId = this.getAttribute('data-id');
+                var button = this;
+
+                // Gửi yêu cầu AJAX để cập nhật trạng thái
+                fetch(`/admin/categories/product-categories/${categoryId}/toggle-status`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status) {
+                        if (data.status === 'active') {
+                            button.innerHTML = '<span class="badge badge-success">Active</span>';
+                        } else {
+                            button.innerHTML = '<span class="badge badge-danger">Inactive</span>';
+                        }
+                    } else {
+                        console.error('Không có dữ liệu trạng thái trả về');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+        });
+    });
+</script>

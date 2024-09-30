@@ -1,29 +1,25 @@
 <?php
+
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use Flasher\Prime\FlasherInterface;
-use Illuminate\Support\Str; // Sử dụng Str để tạo slug tự động
+use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
     // Hiển thị danh sách sản phẩm với tìm kiếm và phân trang
     public function index(Request $request)
     {
-        $search = $request->query('search'); // Lấy từ khóa tìm kiếm từ request
+        $search = $request->query('search');
 
-        if ($search) {
-            // Tìm kiếm theo tên hoặc mô tả sản phẩm
-            $products = Product::where('name', 'LIKE', "%{$search}%")
-                               ->orWhere('description', 'LIKE', "%{$search}%")
-                               ->paginate(10)
-                               ->appends(['search' => $search]); // Giữ tham số tìm kiếm khi phân trang
-        } else {
-            // Hiển thị toàn bộ sản phẩm nếu không tìm kiếm
-            $products = Product::paginate(10);
-        }
+        // Tìm kiếm theo tên hoặc mô tả sản phẩm
+        $products = Product::when($search, function ($query) use ($search) {
+            return $query->where('name', 'LIKE', "%{$search}%")
+                         ->orWhere('description', 'LIKE', "%{$search}%");
+        })->paginate(10)->appends(['search' => $search]);
 
         return view('admin.Products.index', compact('products', 'search'));
     }
@@ -40,19 +36,32 @@ class ProductController extends Controller
         $request->validate([
             'name' => 'required',
             'description' => 'nullable',
-            'price' => 'required|numeric', // Thêm phần giá
-            'stock_quantity' => 'required|integer', // Số lượng kho
+            'price' => 'required|numeric',
+            'stock_quantity' => 'nullable|integer',
+            'image' => 'nullable|image|mimes:jpg,png,jpeg,gif|max:2048', // Nếu có upload ảnh
         ]);
 
-        // Tạo slug tự động từ tên nếu người dùng không cung cấp slug
-        $slug = $request->input('slug') ? $request->input('slug') : Str::slug($request->name);
+        // Tạo slug tự động từ tên và kiểm tra trùng lặp
+        $slug = Str::slug($request->name);
+        if (Product::where('slug', $slug)->exists()) {
+            $slug = $slug . '-' . time();
+        }
 
+        // Xử lý upload ảnh
+        $imageUrl = null;
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $imageUrl = $file->store('images/products', 'public');
+        }
+
+        // Tạo sản phẩm mới
         Product::create([
             'name' => $request->name,
             'slug' => $slug,
             'description' => $request->description,
             'price' => $request->price,
             'stock_quantity' => $request->stock_quantity,
+            'image_url' => $imageUrl,
         ]);
 
         // Thông báo thêm thành công
@@ -76,19 +85,32 @@ class ProductController extends Controller
         $request->validate([
             'name' => 'required',
             'description' => 'nullable',
-            'price' => 'required|numeric', // Thêm phần giá
-            'stock_quantity' => 'required|integer', // Số lượng kho
+            'price' => 'required|numeric',
+            'stock_quantity' => 'nullable|integer',
+            'image' => 'nullable|image|mimes:jpg,png,jpeg,gif|max:2048', // Nếu có upload ảnh
         ]);
 
-        // Tạo slug tự động từ tên nếu người dùng không cung cấp slug
-        $slug = $request->input('slug') ? $request->input('slug') : Str::slug($request->name);
+        // Tạo slug tự động từ tên nếu không cung cấp
+        $slug = Str::slug($request->name);
+        if (Product::where('slug', $slug)->where('id', '!=', $id)->exists()) {
+            $slug = $slug . '-' . time();
+        }
 
+        // Xử lý cập nhật ảnh nếu có upload ảnh mới
+        $imageUrl = $product->image_url;
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $imageUrl = $file->store('images/products', 'public');
+        }
+
+        // Cập nhật sản phẩm
         $product->update([
             'name' => $request->name,
             'slug' => $slug,
             'description' => $request->description,
             'price' => $request->price,
             'stock_quantity' => $request->stock_quantity,
+            'image_url' => $imageUrl,
         ]);
 
         // Thông báo cập nhật thành công

@@ -11,7 +11,10 @@ use App\Http\Controllers\Backend\PostController;
 use App\Http\Controllers\Backend\PostCategoriesController;
 use App\Http\Controllers\Backend\ProductCategoriesController;
 use App\Http\Controllers\Backend\ProductController;
+use App\Http\Controllers\Backend\ReservationController;
+use App\Http\Controllers\Backend\TableController;
 
+use App\Http\Controllers\Banking\PayPalController;
 // Route chuyển hướng trang gốc đến trang đăng nhập
 Route::get('/', function () {
     return redirect()->route('login');
@@ -70,6 +73,8 @@ Route::prefix('admin/categories/product-categories')->group(function () {
     Route::get('/{id}/edit', [ProductCategoriesController::class, 'edit'])->name('product-categories.edit');
     Route::put('/{id}', [ProductCategoriesController::class, 'update'])->name('product-categories.update');
     Route::delete('/{id}', [ProductCategoriesController::class, 'destroy'])->name('product-categories.destroy');
+    Route::post('{id}/toggle-status', [ProductCategoriesController::class, 'toggleStatus'])->name('product-categories.toggleStatus');
+
 });
 
 // Định nghĩa route cho quản lý tin tức (Posts)
@@ -91,9 +96,39 @@ Route::prefix('admin/products')->group(function () {
     Route::put('/{id}', [ProductController::class, 'update'])->name('products.update');
     Route::delete('/{id}', [ProductController::class, 'destroy'])->name('products.destroy');
 });
+// Định nghĩa route cho quản lý bàn (Tables)
+Route::prefix('admin/tables')->group(function () {
+    Route::get('/', [TableController::class, 'index'])->name('tables.index');
+    Route::get('/create', [TableController::class, 'create'])->name('tables.create');
+    Route::post('/', [TableController::class, 'store'])->name('tables.store');
+    Route::get('/{id}/edit', [TableController::class, 'edit'])->name('tables.edit');
+    Route::put('/{id}', [TableController::class, 'update'])->name('tables.update');
+    Route::delete('/{id}', [TableController::class, 'destroy'])->name('tables.destroy');
+});
+// Định nghĩa route cho quản lý đặt chỗ (Reservations)
+Route::prefix('admin/reservations')->group(function () {
+    Route::get('/', [ReservationController::class, 'index'])->name('reservations.index');
+    Route::get('/create', [ReservationController::class, 'create'])->name('reservations.create');
+    Route::post('/', [ReservationController::class, 'store'])->name('reservations.store');
+    Route::get('/{id}/edit', [ReservationController::class, 'edit'])->name('reservations.edit');
+    Route::put('/{id}', [ReservationController::class, 'update'])->name('reservations.update');
+    Route::delete('/{id}', [ReservationController::class, 'destroy'])->name('reservations.destroy');
+});
+
 
 // Định nghĩa route cho Facebook Auth
 Route::controller(FacebookController::class)->group(function () {
     Route::get('auth/facebook', 'redirectToFacebook')->name('auth.facebook');
     Route::get('auth/facebook/callback', 'handleFacebookCallback');
 });
+Route::prefix('payment')->group(function () {
+    // Route tạo thanh toán với đủ hai tham số: reservationId và amount
+    Route::get('/create-payment/{reservationId}/{amount}', [PayPalController::class, 'createPayment'])->name('payment.create');
+    
+    // Route xử lý thanh toán thành công
+    Route::get('/success', [PayPalController::class, 'executePayment'])->name('payment.success');
+    
+    // Route xử lý thanh toán bị hủy
+    Route::get('/cancel', [PayPalController::class, 'cancelPayment'])->name('payment.cancel');
+});
+

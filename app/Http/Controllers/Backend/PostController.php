@@ -11,24 +11,33 @@ use Illuminate\Support\Str;
 
 class PostController extends Controller
 {
-    // Hiển thị danh sách bài viết
+    // Hiển thị danh sách bài viết với tìm kiếm và lọc theo danh mục
     public function index(Request $request)
     {
         $search = $request->query('search');
+        $categoryId = $request->query('category_id'); // Lấy giá trị lọc theo danh mục
 
+        // Query cơ bản
+        $query = Post::query();
+
+        // Nếu có từ khóa tìm kiếm
         if ($search) {
-            $posts = Post::where('title', 'LIKE', "%{$search}%")
-                        ->orWhere('body', 'LIKE', "%{$search}%")
-                        ->orWhereHas('category', function($query) use ($search) {
-                            $query->where('name', 'LIKE', "%{$search}%");
-                        })
-                        ->paginate(10)
-                        ->appends(['search' => $search]);
-        } else {
-            $posts = Post::with('category')->paginate(10);
+            $query->where('title', 'LIKE', "%{$search}%")
+                ->orWhere('body', 'LIKE', "%{$search}%");
         }
 
-        return view('admin.Posts.index', compact('posts', 'search'));
+        // Nếu có lọc theo danh mục
+        if ($categoryId) {
+            $query->where('category_id', $categoryId);
+        }
+
+        // Phân trang và giữ tham số tìm kiếm/lọc
+        $posts = $query->paginate(10)->appends(['search' => $search, 'category_id' => $categoryId]);
+
+        // Lấy danh mục để hiển thị trong form lọc
+        $categories = PostCategory::all();
+
+        return view('admin.Posts.index', compact('posts', 'categories', 'search', 'categoryId'));
     }
 
     // Hiển thị form tạo bài viết mới

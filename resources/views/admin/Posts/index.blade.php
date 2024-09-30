@@ -26,20 +26,33 @@
                         <h5>Danh Sách Bài Viết</h5>
                     </div>
                     <div class="ibox-content">
-                        <!-- Form tìm kiếm -->
+                        <!-- Form tìm kiếm và lọc danh mục -->
                         <div class="row">
-                            <div class="col-lg-3 col-lg-offset-9 text-right">
-                                <form method="GET" action="{{ route('posts.index') }}">
-                                    <div class="input-group">
-                                        <input type="text" name="search" class="form-control"
-                                            placeholder="Tìm kiếm bài viết..." value="{{ request()->input('search') }}">
-                                        <span class="input-group-btn">
-                                            <button class="btn btn-primary" type="submit">Tìm kiếm</button>
-                                        </span>
+                            <div class="col-lg-12 text-right">
+                                <form method="GET" action="{{ route('posts.index') }}" class="form-inline">
+                                    <!-- Dropdown chọn danh mục -->
+                                    <div class="form-group mb-2">
+                                        <select name="category_id" class="form-control">
+                                            <option value="">-- Chọn Danh Mục --</option>
+                                            @foreach ($categories as $category)
+                                                <option value="{{ $category->id }}" {{ request()->input('category_id') == $category->id ? 'selected' : '' }}>
+                                                    {{ $category->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
                                     </div>
+
+                                    <!-- Tìm kiếm từ khóa -->
+                                    <div class="form-group mx-sm-3 mb-2">
+                                        <input type="text" name="search" class="form-control" placeholder="Tìm kiếm bài viết..." value="{{ request()->input('search') }}">
+                                    </div>
+
+                                    <!-- Nút Tìm kiếm -->
+                                    <button type="submit" class="btn btn-primary mb-2">Tìm kiếm</button>
                                 </form>
                             </div>
                         </div>
+
                         <table class="table table-striped table-bordered table-hover dataTables-categories">
                             <thead>
                                 <tr>
@@ -99,6 +112,7 @@
                                 @endforeach
                             </tbody>
                         </table>
+
                         <!-- Phân trang -->
                         <div class="d-flex justify-content-center">
                             {{ $posts->appends(request()->input())->links('pagination::bootstrap-4') }}

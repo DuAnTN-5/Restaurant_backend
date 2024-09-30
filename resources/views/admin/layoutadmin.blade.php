@@ -123,6 +123,27 @@
                             </li>
                         </ul>
                     </li>
+                    <li class="{{ Request::is('admin/tables*') || Request::is('admin/reservations*') ? 'active' : '' }}">
+                        <a href="#"><i class="fa fa-table"></i> <span class="nav-label">Quản Lý Bàn & Đặt Bàn</span> <span class="fa arrow"></span></a>
+                        <ul class="nav nav-second-level">
+                            <!-- Quản lý Bàn -->
+                            <li class="{{ Request::is('admin/tables') ? 'active' : '' }}">
+                                <a href="{{ route('tables.index') }}"><i class="fa fa-list"></i> Danh Sách Bàn</a>
+                            </li>
+                            <li class="{{ Request::is('admin/tables/create') ? 'active' : '' }}">
+                                <a href="{{ route('tables.create') }}"><i class="fa fa-plus-circle"></i> Thêm Bàn</a>
+                            </li>
+                    
+                            <!-- Quản lý Đặt Bàn -->
+                            <li class="{{ Request::is('admin/reservations') ? 'active' : '' }}">
+                                <a href="{{ route('reservations.index') }}"><i class="fa fa-calendar"></i> Danh Sách Đặt Bàn</a>
+                            </li>
+                            <li class="{{ Request::is('admin/reservations/create') ? 'active' : '' }}">
+                                <a href="{{ route('reservations.create') }}"><i class="fa fa-plus-circle"></i> Thêm Đặt Bàn</a>
+                            </li>
+                        </ul>
+                    </li>
+                    
 
                 </ul>
 
